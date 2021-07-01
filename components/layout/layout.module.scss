@@ -1,0 +1,20 @@
+.layout {
+	display: flex;
+	flex-direction: column;
+	margin: 3rem auto 6rem;
+	max-width: 36rem;
+	min-height: 100vh;
+	padding: 0 1rem;
+}
+
+.header {
+	height: 50px;
+}
+
+.main {
+	flex-grow: 1;
+}
+
+.footer {
+	height: 50px;
+}
