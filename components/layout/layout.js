@@ -1,7 +1,7 @@
 import Head from "next/head";
 import styles from "./layout.module.scss";
 
-export default function Layout({ children }) {
+export const Layout = ({ children }) => {
   return (
     <div className={styles.layout}>
       <Head>
@@ -51,4 +51,4 @@ export default function Layout({ children }) {
       <footer className={styles.footer}></footer>
     </div>
   );
-}
+};
