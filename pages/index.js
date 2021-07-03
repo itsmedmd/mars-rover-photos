@@ -9,7 +9,7 @@ export const getStaticProps = async () => {
   const res = await fetch(query);
   const data = await res.json();
 
-  // logging API x-ratelimit-limit and x-ratelimit-remaining headers
+  // logging NASA API x-ratelimit-limit and x-ratelimit-remaining headers
   for (let pair of res.headers.entries()) {
     if (pair[0].includes("ratelimit")) {
       console.log(pair[0] + ": " + pair[1]);
@@ -20,14 +20,70 @@ export const getStaticProps = async () => {
     return { notFound: true };
   }
 
-  // getting width and height values for each image
-  const marsPhotos = [...data.latest_photos.slice(0, 10)];
+  /*
+      cameras object is used to GREATLY REDUCE the time it takes to
+      get width and height properties for each image
+      
+      example cameras object looks like this:
 
+      {
+        Perseverance:
+        {
+          NAVCAM_LEFT:
+          {
+            width: 1200,
+            height: 901
+          },
+          OTHER_CAMERA:
+          {
+            ...
+          }
+        },
+        Curiosity:
+        {
+          ...
+        }
+      }
+  */
+  const cameras = {};
+  const marsPhotos = [...data.latest_photos];
+  console.log("total images: ", marsPhotos.length);
+
+  // getting width and height values for each image
   for (let i = 0; i < marsPhotos.length; i++) {
-    const imgData = await probe(marsPhotos[i].img_src);
-    marsPhotos[i].width = imgData.width;
-    marsPhotos[i].height = imgData.height;
+    let roverName = marsPhotos[i].rover.name;
+    let camName = marsPhotos[i].camera.name;
+    let imgCam =
+      cameras[roverName] && cameras[roverName][camName]
+        ? cameras[roverName][camName]
+        : undefined;
+
+    if (imgCam) {
+      // if there is data about camera image size properties, use it
+      marsPhotos[i].width = imgCam.width;
+      marsPhotos[i].height = imgCam.height;
+    } else {
+      // else probe the image url for camera image size properties
+      console.log("making a new request id: ", i);
+      const probeData = await probe(marsPhotos[i].img_src);
+      marsPhotos[i].width = probeData.width;
+      marsPhotos[i].height = probeData.height;
+
+      // initialise data object for camera image size properties
+      if (cameras[roverName]) {
+        cameras[roverName][camName] = {};
+      } else {
+        cameras[roverName] = {};
+        cameras[roverName][camName] = {};
+      }
+
+      // add image size properties to the object
+      cameras[roverName][camName].width = probeData.width;
+      cameras[roverName][camName].height = probeData.height;
+    }
   }
+
+  console.log("all cameras:", cameras);
 
   return {
     props: { marsPhotos },
