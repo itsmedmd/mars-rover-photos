@@ -4,26 +4,40 @@ import styles from "../styles/home.module.scss";
 import { Layout } from "../components";
 
 export const getStaticProps = async () => {
+  const probe = require("probe-image-size");
   const query = `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/latest_photos?api_key=${process.env.NASA_API_KEY}`;
   const res = await fetch(query);
-
-  // logging headers
-  for (var pair of res.headers.entries()) {
-    console.log(pair[0] + ": " + pair[1]);
-  }
-
   const data = await res.json();
+
+  // logging API x-ratelimit-limit and x-ratelimit-remaining headers
+  for (let pair of res.headers.entries()) {
+    if (pair[0].includes("ratelimit")) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+  }
 
   if (!data) {
     return { notFound: true };
   }
 
-  return { props: { data } };
+  // getting width and height values for each image
+  const marsPhotos = [...data.latest_photos.slice(0, 10)];
+
+  for (let i = 0; i < marsPhotos.length; i++) {
+    const imgData = await probe(marsPhotos[i].img_src);
+    marsPhotos[i].width = imgData.width;
+    marsPhotos[i].height = imgData.height;
+  }
+
+  return {
+    props: { marsPhotos },
+    revalidate: 600,
+  };
 };
 
 const Home = (props) => {
-  console.log(props);
-  const { data: roverData } = props;
+  const { marsPhotos } = props;
+  console.log(marsPhotos[0]);
 
   return (
     <Layout>
@@ -31,12 +45,13 @@ const Home = (props) => {
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
       <div className={styles.content}>
-        {roverData.latest_photos.slice(0, 5).map((photo) => (
+        <h1>Most recent image received at {marsPhotos[0].earth_date}</h1>
+        {marsPhotos.slice(0, 5).map((photo) => (
           <div className={styles.image} key={`${photo.rover.name}-${photo.id}`}>
             <Image
               src={photo.img_src}
-              width="1440"
-              height="960"
+              width={photo.width}
+              height={photo.height}
               alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
             />
           </div>
