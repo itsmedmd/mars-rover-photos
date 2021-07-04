@@ -14,14 +14,14 @@
 var AWS = require("aws-sdk");
 
 AWS.config.update({
-  region: "us-west-2",
+  region: "eu-central-1",
   endpoint: "http://localhost:8000",
 });
 
 var dynamodb = new AWS.DynamoDB();
 
 var params = {
-  TableName: "Movies",
+  TableName: "rovers",
 };
 
 dynamodb.deleteTable(params, function (err, data) {

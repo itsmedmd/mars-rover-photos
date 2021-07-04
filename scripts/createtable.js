@@ -14,25 +14,25 @@
 var AWS = require("aws-sdk");
 
 AWS.config.update({
-  region: "us-west-2",
+  region: "eu-central-1",
   endpoint: "http://localhost:8000",
 });
 
 var dynamodb = new AWS.DynamoDB();
 
 var params = {
-  TableName: "Movies",
+  TableName: "rovers",
   KeySchema: [
-    { AttributeName: "year", KeyType: "HASH" }, //Partition key
-    { AttributeName: "title", KeyType: "RANGE" }, //Sort key
+    { AttributeName: "name", KeyType: "HASH" },
+    { AttributeName: "cam", KeyType: "RANGE" },
   ],
   AttributeDefinitions: [
-    { AttributeName: "year", AttributeType: "N" },
-    { AttributeName: "title", AttributeType: "S" },
+    { AttributeName: "name", AttributeType: "S" },
+    { AttributeName: "cam", AttributeType: "S" },
   ],
   ProvisionedThroughput: {
-    ReadCapacityUnits: 10,
-    WriteCapacityUnits: 10,
+    ReadCapacityUnits: 1,
+    WriteCapacityUnits: 1,
   },
 };
 
