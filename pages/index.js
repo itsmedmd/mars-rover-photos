@@ -5,6 +5,13 @@ import { Layout } from "../components";
 
 export const getStaticProps = async () => {
   const probe = require("probe-image-size");
+  const AWS = require("aws-sdk");
+  AWS.config.update({
+    region: "eu-central-1",
+    endpoint: "http://localhost:8000",
+  });
+  const dynamoDB = new AWS.DynamoDB.DocumentClient();
+
   const query = `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/latest_photos?api_key=${process.env.NASA_API_KEY}`;
   const res = await fetch(query);
   const data = await res.json();
@@ -21,34 +28,101 @@ export const getStaticProps = async () => {
   }
 
   /*
-      cameras object is used to GREATLY REDUCE the time it takes to
-      get width and height properties for each image
-      
-      example cameras object looks like this:
-
-      {
-        Perseverance:
-        {
-          NAVCAM_LEFT:
-          {
-            width: 1200,
-            height: 901
-          },
-          OTHER_CAMERA:
-          {
-            ...
-          }
-        },
-        Curiosity:
-        {
-          ...
-        }
-      }
+    // structure of camsNeeded object
+    {
+      "roverName": [
+        "cam1",
+        "cam2",
+        ...
+      ],
+      "otherRover": [
+        ...
+      ]
+    }
   */
-  const cameras = {};
+  const camsNeeded = {};
   const marsPhotos = [...data.latest_photos];
-  console.log("total images: ", marsPhotos.length);
 
+  // find all cameras that the images were taken in
+  for (let i = 0; i < marsPhotos.length; i++) {
+    let roverName = marsPhotos[i].rover.name;
+    let camName = marsPhotos[i].camera.name;
+
+    if (camsNeeded[roverName] && !camsNeeded[roverName].includes(camName)) {
+      camsNeeded[roverName].push(camName);
+    } else if (!camsNeeded[roverName]) {
+      camsNeeded[roverName] = [];
+      camsNeeded[roverName].push(camName);
+    }
+  }
+
+  // getting width and height values for needed cameras
+  const itemsToGet = [];
+
+  for (let rover in camsNeeded) {
+    camsNeeded[rover].forEach((cam) => {
+      itemsToGet.push({ name: rover, cam: cam });
+    });
+  }
+
+  const getParams = {
+    RequestItems: {
+      rovers: {
+        Keys: itemsToGet,
+        //ProjectionExpression: "name, cam, info"
+      },
+    },
+  };
+
+  //console.log("items to get params:", itemsToGet);
+
+  dynamoDB.batchGet(getParams, function (err, data) {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      data?.Responses?.TABLE_NAME?.forEach(function (element, index, array) {
+        console.log(element);
+      });
+    }
+  });
+
+  // writing width and height values for cameras that were not in database yet
+
+  return {
+    props: { marsPhotos },
+    revalidate: 600,
+  };
+};
+
+const Home = (props) => {
+  const { marsPhotos } = props;
+  //console.log(marsPhotos[0]);
+
+  return (
+    <Layout>
+      <Head>
+        <title>Deimantas Butėnas - Mars Rover Photos</title>
+      </Head>
+      <div className={styles.content}>
+        <h1>Most recent image received at {marsPhotos[0].earth_date}</h1>
+        {marsPhotos.slice(0, 5).map((photo) => (
+          <div className={styles.image} key={`${photo.rover.name}-${photo.id}`}>
+            <Image
+              src={photo.img_src}
+              layout="fill"
+              alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
+            />
+          </div>
+        ))}
+      </div>
+    </Layout>
+  );
+};
+
+export default Home;
+
+/*
+// old image probe
   // getting width and height values for each image
   for (let i = 0; i < marsPhotos.length; i++) {
     let roverName = marsPhotos[i].rover.name;
@@ -83,41 +157,8 @@ export const getStaticProps = async () => {
     }
   }
 
-  console.log("all cameras:", cameras);
 
-  return {
-    props: { marsPhotos },
-    revalidate: 600,
-  };
-};
-
-const Home = (props) => {
-  const { marsPhotos } = props;
-  console.log(marsPhotos[0]);
-
-  return (
-    <Layout>
-      <Head>
-        <title>Deimantas Butėnas - Mars Rover Photos</title>
-      </Head>
-      <div className={styles.content}>
-        <h1>Most recent image received at {marsPhotos[0].earth_date}</h1>
-        {marsPhotos.slice(0, 5).map((photo) => (
-          <div className={styles.image} key={`${photo.rover.name}-${photo.id}`}>
-            <Image
-              src={photo.img_src}
-              width={photo.width}
-              height={photo.height}
-              alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
-            />
-          </div>
-        ))}
-      </div>
-    </Layout>
-  );
-};
-
-export default Home;
+*/
 
 /*
   import { useState, useEffect } from "react";
