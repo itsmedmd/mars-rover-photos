@@ -20,16 +20,13 @@ AWS.config.update({
 
 var docClient = new AWS.DynamoDB.DocumentClient();
 
-var table = "Movies";
-
-var year = 2015;
-var title = "The Big New Movie";
+var table = "rovers";
 
 var params = {
   TableName: table,
   Key: {
-    year: year,
-    title: title,
+    name: "Perseverance",
+    cam: "SUPERCAM_RMI",
   },
 };
 

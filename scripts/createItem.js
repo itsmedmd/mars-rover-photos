@@ -25,11 +25,11 @@ var table = "rovers";
 var params = {
   TableName: table,
   Item: {
-    name: "testas2",
-    cam: "cameraa3",
+    name: "Perseverance",
+    cam: "SUPERCAM_RMI",
     info: {
-      w: 2000,
-      h: 1500,
+      w: 2666,
+      h: 1566,
     },
   },
 };
