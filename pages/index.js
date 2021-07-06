@@ -45,8 +45,8 @@ export const getStaticProps = async () => {
 
   // find all cameras that the images were taken in
   for (let i = 0; i < marsPhotos.length; i++) {
-    let roverName = marsPhotos[i].rover.name;
-    let camName = marsPhotos[i].camera.name;
+    const roverName = marsPhotos[i].rover.name;
+    const camName = marsPhotos[i].camera.name;
 
     if (camsNeeded[roverName] && !camsNeeded[roverName].includes(camName)) {
       camsNeeded[roverName].push(camName);
@@ -69,24 +69,103 @@ export const getStaticProps = async () => {
     RequestItems: {
       rovers: {
         Keys: itemsToGet,
-        //ProjectionExpression: "name, cam, info"
       },
     },
   };
 
-  //console.log("items to get params:", itemsToGet);
+  console.log("camsNeeded:", camsNeeded);
+  console.log("items to get BEFORE:", itemsToGet);
 
-  dynamoDB.batchGet(getParams, function (err, data) {
+  dynamoDB.batchGet(getParams, async (err, data) => {
     if (err) {
       console.log("Error", err);
     } else {
-      data?.Responses?.TABLE_NAME?.forEach(function (element, index, array) {
-        console.log(element);
+      // adding width and height values to marsPhotos array items
+      data?.Responses?.rovers?.forEach((item) => {
+        for (let i = 0; i < marsPhotos.length; i++) {
+          if (
+            !marsPhotos[i].width &&
+            !marsPhotos[i].height &&
+            marsPhotos[i].rover.name === item.name &&
+            marsPhotos[i].camera.name === item.cam
+          ) {
+            marsPhotos[i].width = item.info.w;
+            marsPhotos[i].height = item.info.h;
+          }
+        }
+
+        // remove current item from itemsToGet array because it will not be
+        // sent to the database as a new item because it already has this entry
+        let idOfItemToRemove;
+        for (let i = 0; i < itemsToGet.length; i++) {
+          if (
+            item.name === itemsToGet[i].name &&
+            item.cam === itemsToGet[i].cam
+          ) {
+            idOfItemToRemove = i;
+            break;
+          }
+        }
+        itemsToGet.splice(idOfItemToRemove, 1);
       });
+
+      console.log("initial properties add finished.");
+      // probing properties for needed images
+      const itemsToSend = await probeImageProperties();
+      console.log("items to send from main function:", itemsToSend);
+
+      // sending new data about rover cameras to the database
+      writeDataToDB();
+
+      console.log("batchGet finished.");
     }
   });
 
   // writing width and height values for cameras that were not in database yet
+  const probeImageProperties = async () => {
+    console.log("probeImageProperties start.");
+    const itemsToSend = [...itemsToGet]; // to send to database as new entries
+
+    // getting width and height values for each image that doesn't have them
+    for (let i = 0; i < itemsToGet.length; i++) {
+      for (let j = 0; j < marsPhotos.length; j++) {
+        if (
+          !marsPhotos[j].width &&
+          !marsPhotos[j].height &&
+          marsPhotos[j].rover.name === itemsToGet[i].name &&
+          marsPhotos[j].camera.name === itemsToGet[i].cam
+        ) {
+          if (itemsToSend[i].info) {
+            // don't make a new request because it was already made earlier.
+            // just add already existing values to the image object
+            marsPhotos[j].width = itemsToSend[i].info.w;
+            marsPhotos[j].height = itemsToSend[i].info.h;
+          } else {
+            // else probe the image url for camera image size properties
+            const probeData = await probe(marsPhotos[j].img_src);
+
+            // add values to the image object
+            marsPhotos[j].width = probeData.width;
+            marsPhotos[j].height = probeData.height;
+
+            // add to values to send to the database
+            itemsToSend[i].info = {};
+            itemsToSend[i].info.w = probeData.width;
+            itemsToSend[i].info.h = probeData.height;
+          }
+        }
+      }
+    }
+
+    console.log("probeImageProperties finish.");
+    return itemsToSend;
+  };
+
+  const writeDataToDB = () => {
+    console.log("writeDataToDB start.");
+
+    console.log("writeDataToDB finish.");
+  };
 
   return {
     props: { marsPhotos },
