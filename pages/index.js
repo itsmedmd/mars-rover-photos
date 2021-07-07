@@ -51,61 +51,63 @@ export const getStaticProps = async () => {
     });
   }
 
-  const getParams = {
-    RequestItems: {
-      rovers: {
-        Keys: itemsToGet,
-      },
-    },
-  };
+  const getDataFromDB = () => {
+    return new Promise((resolve) => {
+      const getParams = {
+        RequestItems: {
+          rovers: {
+            Keys: itemsToGet,
+          },
+        },
+      };
 
-  dynamoDB.batchGet(getParams, async (err, data) => {
-    if (err) {
-      console.log("Error getting from database:", err);
-    } else {
-      // adding width and height values to marsPhotos array items
-      data?.Responses?.rovers?.forEach((item) => {
-        for (let i = 0; i < marsPhotos.length; i++) {
-          if (
-            !marsPhotos[i].width &&
-            !marsPhotos[i].height &&
-            marsPhotos[i].rover.name === item.name &&
-            marsPhotos[i].camera.name === item.cam
-          ) {
-            marsPhotos[i].width = item.info.w;
-            marsPhotos[i].height = item.info.h;
-          }
-        }
+      dynamoDB.batchGet(getParams, async (err, data) => {
+        if (err) {
+          console.log("Error getting from database:", err);
+        } else {
+          // adding width and height values to marsPhotos array items
+          data?.Responses?.rovers?.forEach((item) => {
+            for (let i = 0; i < marsPhotos.length; i++) {
+              if (
+                !marsPhotos[i].width &&
+                !marsPhotos[i].height &&
+                marsPhotos[i].rover.name === item.name &&
+                marsPhotos[i].camera.name === item.cam
+              ) {
+                marsPhotos[i].width = item.info.w;
+                marsPhotos[i].height = item.info.h;
+              }
+            }
 
-        // remove current item from itemsToGet array because it will not be
-        // sent to the database as a new item because it already has this entry
-        for (let i = 0; i < itemsToGet.length; i++) {
-          if (
-            item.name === itemsToGet[i].name &&
-            item.cam === itemsToGet[i].cam
-          ) {
-            itemsToGet.splice(i, 1);
-            break;
+            // remove current item from itemsToGet array because it will not be
+            // sent to the database as a new item because it already has this entry
+            for (let i = 0; i < itemsToGet.length; i++) {
+              if (
+                item.name === itemsToGet[i].name &&
+                item.cam === itemsToGet[i].cam
+              ) {
+                itemsToGet.splice(i, 1);
+                break;
+              }
+            }
+          });
+
+          // probing properties for needed images
+          let itemsToSend = [];
+          if (itemsToGet.length > 0) {
+            itemsToSend = await probeImageProperties();
           }
+
+          // sending new data about rover cameras to the database
+          if (itemsToSend.length > 0) {
+            writeDataToDB(itemsToSend);
+          }
+
+          resolve("finished");
         }
       });
-
-      // probing properties for needed images
-      let itemsToSend = [];
-      if (itemsToGet.length > 0) {
-        itemsToSend = await probeImageProperties();
-        console.log("probe");
-      }
-
-      // sending new data about rover cameras to the database
-      if (itemsToSend.length > 0) {
-        writeDataToDB(itemsToSend);
-        console.log("write data");
-      }
-
-      console.log("return:");
-    }
-  });
+    });
+  };
 
   // writing width and height values for cameras that were not in database yet
   const probeImageProperties = async () => {
@@ -161,10 +163,8 @@ export const getStaticProps = async () => {
     });
   };
 
-  // MAKE THIS SYNCHRONOUSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
-  ////////////
-  //////////
-  //////////
+  await getDataFromDB();
+
   return {
     props: { marsPhotos },
     revalidate: 600,
@@ -173,7 +173,6 @@ export const getStaticProps = async () => {
 
 const Home = (props) => {
   const { marsPhotos } = props;
-  console.log(marsPhotos[0]);
 
   return (
     <Layout>
@@ -186,7 +185,8 @@ const Home = (props) => {
           <div className={styles.image} key={`${photo.rover.name}-${photo.id}`}>
             <Image
               src={photo.img_src}
-              layout="fill"
+              width={photo.width}
+              height={photo.height}
               alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
             />
           </div>
