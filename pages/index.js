@@ -27,19 +27,6 @@ export const getStaticProps = async () => {
     return { notFound: true };
   }
 
-  /*
-    // structure of camsNeeded object
-    {
-      "roverName": [
-        "cam1",
-        "cam2",
-        ...
-      ],
-      "otherRover": [
-        ...
-      ]
-    }
-  */
   const camsNeeded = {};
   const marsPhotos = [...data.latest_photos];
 
@@ -58,7 +45,6 @@ export const getStaticProps = async () => {
 
   // getting width and height values for needed cameras
   const itemsToGet = [];
-
   for (let rover in camsNeeded) {
     camsNeeded[rover].forEach((cam) => {
       itemsToGet.push({ name: rover, cam: cam });
@@ -73,12 +59,9 @@ export const getStaticProps = async () => {
     },
   };
 
-  console.log("camsNeeded:", camsNeeded);
-  console.log("items to get BEFORE:", itemsToGet);
-
   dynamoDB.batchGet(getParams, async (err, data) => {
     if (err) {
-      console.log("Error", err);
+      console.log("Error getting from database:", err);
     } else {
       // adding width and height values to marsPhotos array items
       data?.Responses?.rovers?.forEach((item) => {
@@ -96,34 +79,36 @@ export const getStaticProps = async () => {
 
         // remove current item from itemsToGet array because it will not be
         // sent to the database as a new item because it already has this entry
-        let idOfItemToRemove;
         for (let i = 0; i < itemsToGet.length; i++) {
           if (
             item.name === itemsToGet[i].name &&
             item.cam === itemsToGet[i].cam
           ) {
-            idOfItemToRemove = i;
+            itemsToGet.splice(i, 1);
             break;
           }
         }
-        itemsToGet.splice(idOfItemToRemove, 1);
       });
 
-      console.log("initial properties add finished.");
       // probing properties for needed images
-      const itemsToSend = await probeImageProperties();
-      console.log("items to send from main function:", itemsToSend);
+      let itemsToSend = [];
+      if (itemsToGet.length > 0) {
+        itemsToSend = await probeImageProperties();
+        console.log("probe");
+      }
 
       // sending new data about rover cameras to the database
-      writeDataToDB();
+      if (itemsToSend.length > 0) {
+        writeDataToDB(itemsToSend);
+        console.log("write data");
+      }
 
-      console.log("batchGet finished.");
+      console.log("return:");
     }
   });
 
   // writing width and height values for cameras that were not in database yet
   const probeImageProperties = async () => {
-    console.log("probeImageProperties start.");
     const itemsToSend = [...itemsToGet]; // to send to database as new entries
 
     // getting width and height values for each image that doesn't have them
@@ -156,17 +141,30 @@ export const getStaticProps = async () => {
         }
       }
     }
-
-    console.log("probeImageProperties finish.");
     return itemsToSend;
   };
 
-  const writeDataToDB = () => {
-    console.log("writeDataToDB start.");
+  const writeDataToDB = (itemsArray) => {
+    const itemsToWrite = itemsArray.map((element) => {
+      const itemObj = { PutRequest: { Item: {} } };
+      itemObj.PutRequest.Item = element;
+      return itemObj;
+    });
 
-    console.log("writeDataToDB finish.");
+    const writeParams = { RequestItems: { rovers: itemsToWrite } };
+    dynamoDB.batchWrite(writeParams, (err, data) => {
+      if (err) {
+        console.log("Error writing to database:", err);
+      } else {
+        console.log("success writing to database:", data);
+      }
+    });
   };
 
+  // MAKE THIS SYNCHRONOUSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+  ////////////
+  //////////
+  //////////
   return {
     props: { marsPhotos },
     revalidate: 600,
@@ -175,7 +173,7 @@ export const getStaticProps = async () => {
 
 const Home = (props) => {
   const { marsPhotos } = props;
-  //console.log(marsPhotos[0]);
+  console.log(marsPhotos[0]);
 
   return (
     <Layout>
