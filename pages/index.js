@@ -66,6 +66,7 @@ export const getStaticProps = async () => {
           console.log("Error getting from database:", err);
         } else {
           // adding width and height values to marsPhotos array items
+          console.log("received:", data.Responses.rovers);
           data?.Responses?.rovers?.forEach((item) => {
             for (let i = 0; i < marsPhotos.length; i++) {
               if (
@@ -181,12 +182,15 @@ const Home = (props) => {
       </Head>
       <div className={styles.content}>
         <h1>Most recent image received at {marsPhotos[0].earth_date}</h1>
-        {marsPhotos.slice(0, 5).map((photo) => (
-          <div className={styles.image} key={`${photo.rover.name}-${photo.id}`}>
+        {marsPhotos.map((photo) => (
+          <div
+            className={styles["image-container"]}
+            key={`${photo.rover.name}-${photo.id}`}
+          >
             <Image
               src={photo.img_src}
-              width={photo.width}
-              height={photo.height}
+              layout="fill"
+              className={styles.image}
               alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
             />
           </div>
