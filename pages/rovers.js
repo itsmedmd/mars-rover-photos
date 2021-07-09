@@ -9,7 +9,7 @@ const Home = () => {
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
       </Head>
-      <div className={styles.content}></div>
+      <div className={styles.content}>rovers!</div>
     </Layout>
   );
 };

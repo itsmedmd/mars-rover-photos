@@ -22,7 +22,7 @@ export const getStaticProps = async () => {
   const marsPhotos = [...data.latest_photos];
   return {
     props: { marsPhotos },
-    revalidate: 600,
+    revalidate: 3600,
   };
 };
 
