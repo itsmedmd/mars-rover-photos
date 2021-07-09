@@ -1,5 +1,6 @@
 import Head from "next/head";
 import styles from "./layout.module.scss";
+import { Navigation } from "components";
 
 export const Layout = ({ children }) => {
   return (
@@ -46,7 +47,9 @@ export const Layout = ({ children }) => {
           content="https://www.deimantasb.com/meta-image.png"
         />
       </Head>
-      <header className={styles.header}></header>
+      <header className={styles.header}>
+        <Navigation />
+      </header>
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}></footer>
     </div>

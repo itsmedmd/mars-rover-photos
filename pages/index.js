@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
-import styles from "../styles/home.module.scss";
-import { Layout } from "../components";
+import styles from "styles/home.module.scss";
+import { Layout } from "components";
 
 export const getStaticProps = async () => {
   const query = `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/latest_photos?api_key=${process.env.NASA_API_KEY}`;
