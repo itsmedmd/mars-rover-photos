@@ -1,7 +1,6 @@
 import Head from "next/head";
-import Image from "next/image";
 import styles from "styles/home.module.scss";
-import { Layout } from "components";
+import { Layout, RoverImage } from "components";
 
 export const getStaticProps = async () => {
   const query = `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/latest_photos?api_key=${process.env.NASA_API_KEY}`;
@@ -29,29 +28,31 @@ export const getStaticProps = async () => {
 const Home = (props) => {
   const { marsPhotos } = props;
 
+  const photosToRender = marsPhotos.map((photo, id) => {
+    const imageProps = {
+      src: photo.img_src,
+      layout: "fill",
+      quality: "30",
+      alt: `${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`,
+    };
+
+    return (
+      <RoverImage
+        rootMargin="0px 0px 2000px 0px"
+        key={`${photo.rover.name}-${photo.id}`}
+        props={imageProps}
+      />
+    );
+  });
+
   return (
     <Layout>
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
-      <div className={styles.content}>
-        <h1>Most recent image received at {marsPhotos[0].earth_date}</h1>
-        {marsPhotos.map((photo) => (
-          <div
-            className={styles["image-container"]}
-            key={`${photo.rover.name}-${photo.id}`}
-          >
-            <Image
-              src={photo.img_src}
-              layout="fill"
-              quality="60"
-              placeholder="blur"
-              blurDataURL={photo.img_src}
-              className={styles.image}
-              alt={`${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`}
-            />
-          </div>
-        ))}
+      <div className={styles.gallery}>
+        {/*<h1>Most recent image received at {marsPhotos[0].earth_date}</h1>*/}
+        {photosToRender}
       </div>
     </Layout>
   );

@@ -3,7 +3,7 @@ import styles from "./navigation.module.scss";
 
 export const Navigation = () => {
   return (
-    <nav>
+    <nav className={styles.navigation}>
       <Link href="/">
         <a>Photos</a>
       </Link>
