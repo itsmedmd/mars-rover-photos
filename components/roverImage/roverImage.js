@@ -14,6 +14,7 @@ export const RoverImage = ({ rootMargin, props }) => {
       // thanks to the condition "!isInView &&" image is loaded only once
       onChange={(inView) => !isInView && setIsInView(inView)}
     >
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image priority={isInView} className={styles.image} {...props} />
     </InView>
   );
