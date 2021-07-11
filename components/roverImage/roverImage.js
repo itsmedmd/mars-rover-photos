@@ -5,7 +5,6 @@ import styles from "./rover-image.module.scss";
 
 export const RoverImage = ({ rootMargin, props }) => {
   const [isInView, setIsInView] = useState(false);
-  if (isInView) console.log("in view !");
 
   return (
     <InView

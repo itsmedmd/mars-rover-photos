@@ -1,5 +1,11 @@
+@import "styles";
+
 .gallery {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
+}
+
+.text {
+	color: $white;
 }

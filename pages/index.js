@@ -3,14 +3,23 @@ import styles from "styles/home.module.scss";
 import { Layout, RoverImage } from "components";
 
 export const getStaticProps = async () => {
-  const query = `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/latest_photos?api_key=${process.env.NASA_API_KEY}`;
-  const res = await fetch(query);
-  const data = await res.json();
+  const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
 
-  // logging NASA API x-ratelimit-limit and x-ratelimit-remaining headers
-  for (let pair of res.headers.entries()) {
-    if (pair[0].includes("ratelimit")) {
-      console.log(pair[0] + ": " + pair[1]);
+  let data = []; // latest photos from all rovers
+  let newestDate; // date of the most recent photo calculated from all rovers
+
+  for (let rover of rovers) {
+    // fetch rover photos and add it to the array
+    const res = await fetch(
+      `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
+    );
+    const newData = await res.json();
+    data = data.concat(newData.latest_photos);
+
+    // find if there is a more recent photo from the new set of data
+    const newDate = new Date(newData.latest_photos[0].earth_date);
+    if (!newestDate || newDate.getTime() > newestDate.getTime()) {
+      newestDate = newDate;
     }
   }
 
@@ -18,17 +27,19 @@ export const getStaticProps = async () => {
     return { notFound: true };
   }
 
-  const marsPhotos = [...data.latest_photos];
+  // format the date to have format of "YYYY-MM-DD"
+  newestDate = newestDate.toISOString().split("T")[0];
+
   return {
-    props: { marsPhotos },
+    props: { data, newestDate },
     revalidate: 3600,
   };
 };
 
 const Home = (props) => {
-  const { marsPhotos } = props;
+  const { data: marsPhotos, newestDate } = props;
 
-  const photosToRender = marsPhotos.map((photo, id) => {
+  const photosToRender = marsPhotos.map((photo) => {
     const imageProps = {
       src: photo.img_src,
       layout: "fill",
@@ -51,7 +62,12 @@ const Home = (props) => {
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
       <div className={styles.gallery}>
-        {/*<h1>Most recent image received at {marsPhotos[0].earth_date}</h1>*/}
+        <h1 className={styles.text}>
+          Displaying photos of the most recent Sol (day on Mars).
+        </h1>
+        <h2 className={styles.text}>
+          Most recent image received at {newestDate}.
+        </h2>
         {photosToRender}
       </div>
     </Layout>
