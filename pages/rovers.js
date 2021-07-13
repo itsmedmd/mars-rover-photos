@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
-import styles from "../styles/rovers.module.scss";
-import { Layout } from "../components";
+import styles from "styles/rovers.module.scss";
+import { Layout } from "components";
 
 const Home = () => {
   return (

@@ -1,12 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import Head from "next/head";
 import styles from "styles/home.module.scss";
 import imageStyles from "components/roverImage/rover-image.module.scss";
 import { Layout, RoverImage } from "components";
+import imagesLoaded from "imagesloaded";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
-
   let data = []; // latest photos from all rovers
   let newestDate; // date of the most recent photo calculated from all rovers
 
@@ -35,6 +35,8 @@ export const getStaticProps = async () => {
   // format the date to have format of "YYYY-MM-DD"
   newestDate = newestDate.toISOString().split("T")[0];
 
+  data = data.slice(0, 10);
+
   return {
     props: { data, newestDate },
     revalidate: 3600,
@@ -43,21 +45,18 @@ export const getStaticProps = async () => {
 
 const Home = (props) => {
   const { data, newestDate } = props;
+  const gridRef = useRef(null);
 
-  const photosToRender = data.slice(0, 100).map((photo) => {
+  const photosToRender = data.map((photo) => {
     const imageProps = {
       src: photo.img_src,
       layout: "fill",
-      quality: "90",
+      quality: "35",
       alt: `${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`,
     };
 
     return (
-      <RoverImage
-        rootMargin="0px 0px 2000px 0px"
-        key={`${photo.rover.name}-${photo.id}`}
-        props={imageProps}
-      />
+      <RoverImage key={`${photo.rover.name}-${photo.id}`} props={imageProps} />
     );
   });
 
@@ -65,9 +64,32 @@ const Home = (props) => {
     const initMasonry = async () => {
       if (typeof window !== "undefined") {
         const { default: Masonry } = await import("masonry-layout");
+        const { default: InfiniteScroll } = await import("infinite-scroll");
+        const containerClass = "." + styles.gallery;
+        const itemClass = "." + imageStyles.observer;
 
-        const myMasonry = new Masonry("." + styles.gallery, {
-          itemSelector: "." + imageStyles.observer,
+        const myMasonry = new Masonry(containerClass, {
+          itemSelector: "none",
+        });
+
+        InfiniteScroll.imagesLoaded = imagesLoaded;
+
+        imagesLoaded(containerClass, () => {
+          console.log("images loaded!");
+          const grid = document.querySelector(containerClass);
+
+          myMasonry.options.itemSelector = itemClass;
+          const items = grid.querySelectorAll(itemClass);
+          myMasonry.appended(items);
+        });
+
+        const infScroll = new InfiniteScroll(containerClass, {
+          path: function () {
+            return `/page-${(this.loadCount + 1) * 10}`;
+          },
+          outlayer: myMasonry,
+          append: itemClass,
+          history: false,
         });
       }
     };
