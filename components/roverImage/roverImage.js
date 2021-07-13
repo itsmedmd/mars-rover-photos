@@ -1,20 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
-import { InView } from "react-intersection-observer";
 import styles from "./rover-image.module.scss";
 
-export const RoverImage = ({ rootMargin, props }) => {
-  const [isInView, setIsInView] = useState(false);
-
+export const RoverImage = ({ props }) => {
   return (
-    <InView
-      className={styles.observer}
-      rootMargin={rootMargin}
-      // thanks to the condition "!isInView &&" image is loaded only once
-      onChange={(inView) => !isInView && setIsInView(inView)}
-    >
+    <div className={styles.observer}>
       {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <Image priority={isInView} className={styles.image} {...props} />
-    </InView>
+      <Image priority className={styles.image} {...props} />
+    </div>
   );
 };
