@@ -3,7 +3,6 @@ import Head from "next/head";
 import styles from "styles/home.module.scss";
 import imageStyles from "components/roverImage/rover-image.module.scss";
 import { Layout, RoverImage } from "components";
-//import Masonry from "masonry-layout";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
@@ -45,7 +44,7 @@ export const getStaticProps = async () => {
 const Home = (props) => {
   const { data, newestDate } = props;
 
-  const photosToRender = data.map((photo) => {
+  const photosToRender = data.slice(0, 100).map((photo) => {
     const imageProps = {
       src: photo.img_src,
       layout: "fill",
@@ -69,7 +68,6 @@ const Home = (props) => {
 
         const myMasonry = new Masonry("." + styles.gallery, {
           itemSelector: "." + imageStyles.observer,
-          columnWidth: 500,
         });
       }
     };

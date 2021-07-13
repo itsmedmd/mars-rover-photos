@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.939.0",
+    "infinite-scroll": "^4.0.1",
     "masonry-layout": "^4.2.2",
     "next": "11.0.1",
     "probe-image-size": "^7.2.1",
