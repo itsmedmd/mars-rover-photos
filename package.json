@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.939.0",
+    "masonry-layout": "^4.2.2",
     "next": "11.0.1",
     "probe-image-size": "^7.2.1",
     "react": "17.0.2",
