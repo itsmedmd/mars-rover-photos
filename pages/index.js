@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Head from "next/head";
 import styles from "styles/home.module.scss";
 import imageStyles from "components/roverImage/rover-image.module.scss";
@@ -7,6 +7,7 @@ import imagesLoaded from "imagesloaded";
 
 export const getStaticProps = async () => {
   const fs = require("fs");
+  const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
   let data = []; // latest photos from all rovers
   let newestDate; // date of the most recent photo calculated from all rovers
@@ -62,19 +63,23 @@ export const getStaticProps = async () => {
   newestDate = newestDate.toISOString().split("T")[0];
 
   writeToFile("./data/images-data.json", data);
-  writeToFile("./data/pages-count.json", { pageCount: data.length / 10 });
+  writeToFile("./data/pages-count.json", {
+    pageCount: data.length / photosPerPage,
+  });
 
-  data = data.slice(0, 10);
+  console.log("page count:", data.length / photosPerPage);
+
+  data = data.slice(0, photosPerPage);
 
   return {
-    props: { data, newestDate },
+    props: { data, newestDate, photosPerPage },
     revalidate: 3600,
   };
 };
 
 const Home = (props) => {
-  const { data, newestDate } = props;
-  const gridRef = useRef(null);
+  const { data, newestDate, photosPerPage } = props;
+  console.log("photos per page:", photosPerPage);
 
   const photosToRender = data.map((photo) => {
     const imageProps = {
@@ -92,39 +97,51 @@ const Home = (props) => {
   useEffect(() => {
     const initMasonry = async () => {
       if (typeof window !== "undefined") {
+        // importing modules here because they
+        // require window object for initialisation
         const { default: Masonry } = await import("masonry-layout");
         const { default: InfiniteScroll } = await import("infinite-scroll");
+
         const containerClass = "." + styles.gallery;
         const itemClass = "." + imageStyles.observer;
+        const grid = document.querySelector(containerClass);
 
-        const myMasonry = new Masonry(containerClass, {
+        const myMasonry = new Masonry(grid, {
           itemSelector: "none",
+          percentPosition: true,
+        });
+
+        imagesLoaded(grid, () => {
+          console.log("images loaded!");
+          myMasonry.options.itemSelector = itemClass;
+          let items = grid.querySelectorAll(itemClass);
+          myMasonry.appended(items);
+          myMasonry.layout();
         });
 
         InfiniteScroll.imagesLoaded = imagesLoaded;
 
-        imagesLoaded(containerClass, () => {
-          console.log("images loaded!");
-          const grid = document.querySelector(containerClass);
-
-          myMasonry.options.itemSelector = itemClass;
-          const items = grid.querySelectorAll(itemClass);
-          myMasonry.appended(items);
-        });
-
-        const infScroll = new InfiniteScroll(containerClass, {
+        const infScroll = new InfiniteScroll(grid, {
           path: function () {
-            return `/page-${(this.loadCount + 1) * 10}`;
+            return `/page-${(this.loadCount + 1) * photosPerPage}`;
           },
           outlayer: myMasonry,
           append: itemClass,
-          history: false,
+          status: "." + styles["page-load-status"],
+          //history: false,
+          //prefill: true,
+          //scrollThreshold: 1500,
+          onInit: function () {
+            this.on("load", function () {
+              console.log("Infinite Scroll init");
+            });
+          },
         });
       }
     };
 
     initMasonry();
-  }, []);
+  }, [photosPerPage]);
 
   console.log("rendering index.");
   return (
@@ -139,6 +156,11 @@ const Home = (props) => {
         Most recent image received at {newestDate}.
       </h2>
       <div className={styles.gallery}>{photosToRender}</div>
+      <div className={styles["page-load-status"]}>
+        <p className="infinite-scroll-request">Loading...</p>
+        <p className="infinite-scroll-last">End of content</p>
+        <p className="infinite-scroll-error">No more pages to load</p>
+      </div>
     </Layout>
   );
 };

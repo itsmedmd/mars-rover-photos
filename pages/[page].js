@@ -3,6 +3,7 @@ import { Layout, RoverImage } from "components";
 
 export async function getStaticPaths() {
   const fs = require("fs");
+  const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const fileName = "./data/pages-count.json";
   let pageCount;
 
@@ -19,7 +20,7 @@ export async function getStaticPaths() {
   for (let i = 1; i <= pageCount; i++) {
     paths.push({
       params: {
-        page: `page-${i * 10}`,
+        page: `page-${i * photosPerPage}`,
       },
     });
   }
@@ -34,6 +35,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const fs = require("fs");
+  const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const fileName = "./data/images-data.json";
   let data = []; // latest photos from all rovers
 
@@ -47,7 +49,13 @@ export async function getStaticProps({ params }) {
 
   let pageNumber = params.page.split("-");
   pageNumber = parseInt(pageNumber[1]);
-  data = data.slice(pageNumber, pageNumber + 10);
+  data = data.slice(pageNumber, pageNumber + photosPerPage);
+  console.log(
+    "taking page from ",
+    pageNumber,
+    " to ",
+    pageNumber + photosPerPage
+  );
 
   return {
     props: { data },
@@ -56,6 +64,12 @@ export async function getStaticProps({ params }) {
 }
 
 const Page = ({ data }) => {
+  /////////////////////////////////////create component for this
+  //
+  //
+  //
+  //
+  //
   const photosToRender = data.map((photo) => {
     const imageProps = {
       src: photo.img_src,

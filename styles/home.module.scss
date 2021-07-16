@@ -8,3 +8,11 @@
 .text {
 	color: $text-dark;
 }
+
+.page-load-status {
+	border-top: 1px solid $gray;
+	color: $black;
+	display: none; /* hidden by default */
+	padding-top: 8px;
+	text-align: center;
+}
