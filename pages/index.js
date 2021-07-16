@@ -107,15 +107,13 @@ const Home = (props) => {
         const grid = document.querySelector(containerClass);
 
         const myMasonry = new Masonry(grid, {
-          itemSelector: "none",
+          itemSelector: itemClass,
           percentPosition: true,
         });
 
         imagesLoaded(grid, () => {
-          console.log("images loaded!");
-          myMasonry.options.itemSelector = itemClass;
-          let items = grid.querySelectorAll(itemClass);
-          myMasonry.appended(items);
+          // layout Masonry after initial images load
+          console.log("relaying masonry on initial load.");
           myMasonry.layout();
         });
 
@@ -128,12 +126,13 @@ const Home = (props) => {
           outlayer: myMasonry,
           append: itemClass,
           status: "." + styles["page-load-status"],
-          //history: false,
-          //prefill: true,
-          //scrollThreshold: 1500,
+          history: false,
+          scrollThreshold: 200,
           onInit: function () {
-            this.on("load", function () {
-              console.log("Infinite Scroll init");
+            this.on("append", () => {
+              // layout Masonry after appending new images
+              console.log("relaying masonry on append.");
+              myMasonry.layout();
             });
           },
         });
@@ -155,7 +154,7 @@ const Home = (props) => {
       <h2 className={styles.text}>
         Most recent image received at {newestDate}.
       </h2>
-      <div className={styles.gallery}>{photosToRender}</div>
+      <div className={`${styles.gallery}`}>{photosToRender}</div>
       <div className={styles["page-load-status"]}>
         <p className="infinite-scroll-request">Loading...</p>
         <p className="infinite-scroll-last">End of content</p>

@@ -8,7 +8,7 @@
 		width: 50%;  // 2 columns
 	}
 	
-	@include respond-to(min-width, $break-desktop) {
+	@include respond-to(min-width, 1500px) {
 		width: 33.33%;  // 3 columns
 	}
 
