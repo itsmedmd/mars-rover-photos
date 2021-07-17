@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import Head from "next/head";
 import styles from "styles/home.module.scss";
 import imageStyles from "components/roverImage/rover-image.module.scss";
-import { Layout, RoverImage } from "components";
+import { Layout, RoverImageGallery } from "components";
 import imagesLoaded from "imagesloaded";
 
 export const getStaticProps = async () => {
@@ -25,7 +25,6 @@ export const getStaticProps = async () => {
           console.error(`error writing to file ${fileName}`, err);
           return;
         }
-        console.log(`success writing to file ${fileName}`);
       }
     );
   };
@@ -47,9 +46,10 @@ export const getStaticProps = async () => {
       }
     }
 
-    // logging NASA API x-ratelimit-limit and x-ratelimit-remaining headers
+    // logging NASA API remaining requests count
+    // (each request has 1 hour delay until it can be used again)
     for (let pair of res.headers.entries()) {
-      if (pair[0].includes("ratelimit")) {
+      if (pair[0] === "x-ratelimit-remaining") {
         console.log(pair[0] + ": " + pair[1]);
       }
     }
@@ -69,6 +69,7 @@ export const getStaticProps = async () => {
 
   console.log("page count:", data.length / photosPerPage);
 
+  // create image data set for the first (index) page
   data = data.slice(0, photosPerPage);
 
   return {
@@ -80,19 +81,6 @@ export const getStaticProps = async () => {
 const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
   console.log("photos per page:", photosPerPage);
-
-  const photosToRender = data.map((photo) => {
-    const imageProps = {
-      src: photo.img_src,
-      layout: "fill",
-      quality: "30",
-      alt: `${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`,
-    };
-
-    return (
-      <RoverImage key={`${photo.rover.name}-${photo.id}`} props={imageProps} />
-    );
-  });
 
   useEffect(() => {
     const initMasonry = async () => {
@@ -148,13 +136,16 @@ const Home = (props) => {
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
+
       <h1 className={styles.text}>
         Displaying photos of the most recent Sol (day on Mars).
       </h1>
       <h2 className={styles.text}>
         Most recent image received at {newestDate}.
       </h2>
-      <div className={`${styles.gallery}`}>{photosToRender}</div>
+
+      <RoverImageGallery photosArray={data} />
+
       <div className={styles["page-load-status"]}>
         <p className="infinite-scroll-request">Loading...</p>
         <p className="infinite-scroll-last">End of content</p>

@@ -1,14 +1,14 @@
 @import "styles";
 
 .observer {
-	padding: 4px;
+	padding: 2px;
 	width: 100%; // 1 column
 
 	@include respond-to(min-width, $break-laptop) {
 		width: 50%;  // 2 columns
 	}
 	
-	@include respond-to(min-width, 1500px) {
+	@include respond-to(min-width, $break-desktop) {
 		width: 33.33%;  // 3 columns
 	}
 

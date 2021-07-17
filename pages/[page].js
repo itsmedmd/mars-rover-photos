@@ -1,5 +1,4 @@
-import styles from "styles/home.module.scss";
-import { Layout, RoverImage } from "components";
+import { Layout, RoverImageGallery } from "components";
 
 export async function getStaticPaths() {
   const fs = require("fs");
@@ -11,7 +10,6 @@ export async function getStaticPaths() {
     const rawData = fs.readFileSync(fileName);
     const data = JSON.parse(rawData);
     pageCount = data.pageCount;
-    console.log(`success reading from file ${fileName}`);
   } catch (err) {
     console.error(`error reading from file ${fileName}`, err);
   }
@@ -42,20 +40,14 @@ export async function getStaticProps({ params }) {
   try {
     const rawData = fs.readFileSync(fileName);
     data = JSON.parse(rawData);
-    console.log(`success reading from file ${fileName}`);
   } catch (err) {
     console.error(`error reading from file ${fileName}`, err);
   }
 
+  // taking only 'photosPerPage' number of photos starting from 'pageNumber'
   let pageNumber = params.page.split("-");
   pageNumber = parseInt(pageNumber[1]);
   data = data.slice(pageNumber, pageNumber + photosPerPage);
-  console.log(
-    "taking page from ",
-    pageNumber,
-    " to ",
-    pageNumber + photosPerPage
-  );
 
   return {
     props: { data },
@@ -64,29 +56,10 @@ export async function getStaticProps({ params }) {
 }
 
 const Page = ({ data }) => {
-  /////////////////////////////////////create component for this
-  //
-  //
-  //
-  //
-  //
-  const photosToRender = data.map((photo) => {
-    const imageProps = {
-      src: photo.img_src,
-      layout: "fill",
-      quality: "30",
-      alt: `${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`,
-    };
-
-    return (
-      <RoverImage key={`${photo.rover.name}-${photo.id}`} props={imageProps} />
-    );
-  });
-
   console.log("rendering a page.");
   return (
     <Layout>
-      <div className={styles.gallery}>{photosToRender}</div>
+      <RoverImageGallery photosArray={data} />
     </Layout>
   );
 };
