@@ -1,19 +1,28 @@
+import Image from "next/image";
 import homeStyles from "styles/home.module.scss";
-import { RoverImage } from "components";
+import styles from "./rover-image-gallery.module.scss";
 
 export const RoverImageGallery = ({ photosArray }) => {
-  const photosToRender = photosArray.map((photo) => {
-    const imageProps = {
-      src: photo.img_src,
-      layout: "fill",
-      quality: "30",
-      alt: `${photo.rover.name} Mars rover image with ${photo.camera.full_name} on ${photo.earth_date}`,
-    };
-
-    return (
-      <RoverImage key={`${photo.rover.name}-${photo.id}`} props={imageProps} />
-    );
-  });
-
-  return <div className={homeStyles.gallery}>{photosToRender}</div>;
+  return (
+    <div className={homeStyles.gallery}>
+      {photosArray.map((photo) => (
+        <div
+          key={`${photo.rover.name}-${photo.id}`}
+          className={styles["image-container"]}
+        >
+          <Image
+            priority
+            quality="30"
+            layout="fill"
+            src={photo.img_src}
+            className={styles.image}
+            alt={`
+                ${photo.rover.name} Mars rover image taken with 
+                ${photo.camera.full_name} on ${photo.earth_date}
+              `}
+          />
+        </div>
+      ))}
+    </div>
+  );
 };
