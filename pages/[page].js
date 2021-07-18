@@ -56,7 +56,6 @@ export async function getStaticProps({ params }) {
 }
 
 const Page = ({ data }) => {
-  console.log("rendering a page.");
   return (
     <Layout>
       <RoverImageGallery photosArray={data} />

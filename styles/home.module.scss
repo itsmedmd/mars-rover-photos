@@ -6,17 +6,18 @@
 }
 
 .text {
-	color: $text-dark;
+	color: $text-light;
 }
 
 .page-load-status {
-	border-top: 1px solid $gray;
-	color: $black;
+	border-top: 1px solid $text-light;
+	color: $text-light;
 	display: none; /* hidden by default */
 	padding-top: 8px;
 	text-align: center;
 }
 
 .are-images-unloaded {
+	// make use of thisssssssssssssssssssssssssss
 	display: none;
 }

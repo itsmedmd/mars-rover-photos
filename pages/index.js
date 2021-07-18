@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import Head from "next/head";
-import styles from "styles/home.module.scss";
-import imageStyles from "components/roverImage/rover-image.module.scss";
-import { Layout, RoverImageGallery } from "components";
 import imagesLoaded from "imagesloaded";
+import { Layout, RoverImageGallery } from "components";
+import styles from "styles/home.module.scss";
+import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
 
 export const getStaticProps = async () => {
   const fs = require("fs");
@@ -80,7 +80,6 @@ export const getStaticProps = async () => {
 
 const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
-  console.log("photos per page:", photosPerPage);
 
   useEffect(() => {
     const initMasonry = async () => {
@@ -91,7 +90,7 @@ const Home = (props) => {
         const { default: InfiniteScroll } = await import("infinite-scroll");
 
         const containerClass = "." + styles.gallery;
-        const itemClass = "." + imageStyles.observer;
+        const itemClass = "." + imageStyles["image-container"];
         const grid = document.querySelector(containerClass);
 
         const myMasonry = new Masonry(grid, {
@@ -115,7 +114,7 @@ const Home = (props) => {
           append: itemClass,
           status: "." + styles["page-load-status"],
           history: false,
-          scrollThreshold: 200,
+          scrollThreshold: 100,
           onInit: function () {
             this.on("append", () => {
               // layout Masonry after appending new images
@@ -130,7 +129,6 @@ const Home = (props) => {
     initMasonry();
   }, [photosPerPage]);
 
-  console.log("rendering index.");
   return (
     <Layout>
       <Head>
