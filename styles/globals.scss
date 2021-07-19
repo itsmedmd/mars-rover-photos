@@ -1,5 +1,8 @@
+@import "styles";
+
 html,
 body {
+	color: $text-light;
 	font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
 		Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 	margin: 0;

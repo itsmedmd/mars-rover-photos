@@ -135,12 +135,8 @@ const Home = (props) => {
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
 
-      <h1 className={styles.text}>
-        Displaying photos of the most recent Sol (day on Mars).
-      </h1>
-      <h2 className={styles.text}>
-        Most recent image received at {newestDate}.
-      </h2>
+      <h1>Displaying photos of the most recent Sol (day on Mars).</h1>
+      <h2>Most recent image received at {newestDate}.</h2>
 
       <RoverImageGallery photosArray={data} />
 
