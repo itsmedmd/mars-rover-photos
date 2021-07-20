@@ -4,7 +4,7 @@ import styles from "./rover-image-gallery.module.scss";
 
 export const RoverImageGallery = ({ photosArray }) => {
   return (
-    <div className={homeStyles.gallery}>
+    <div className={homeStyles["gallery"]}>
       {photosArray.map((photo) => (
         <div
           key={`${photo.rover.name}-${photo.id}`}
@@ -15,7 +15,7 @@ export const RoverImageGallery = ({ photosArray }) => {
             quality="30"
             layout="fill"
             src={photo.img_src}
-            className={styles.image}
+            className={styles["image"]}
             alt={`
                 ${photo.rover.name} Mars rover image taken with 
                 ${photo.camera.full_name} on ${photo.earth_date}

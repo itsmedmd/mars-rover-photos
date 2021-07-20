@@ -1,0 +1,74 @@
+@import "styles";
+
+.content {
+	display: grid;
+	gap: 4px;
+	grid-template-columns: 1fr 1fr;
+	justify-content: center;
+	max-width: 1800px;
+	width: 100%;
+
+	@include respond-to(max-width, $break-tablet) {
+		grid-template-columns: 1fr;
+	}
+}
+
+.rover {
+	background-color: rgba(0, 0, 0, 0.4);
+	color: $text-gray;
+	font-size: $font-22;
+	padding: 32px 24px 84px 36px;
+
+	@include respond-to(max-width, $break-tablet) {
+		margin-bottom: 32px;
+		width: 100%;
+	}
+
+	&__name {
+		border-top: 1px solid rgba($white, 0.6);
+		display: flex;
+		font-size: $font-40;
+		justify-content: space-between;
+		letter-spacing: -0.5px;
+		line-height: 1.7;
+		margin: 12px 0 28px;
+	}
+
+	&__status {
+		font-size: $font-36;
+		margin: 0;
+		padding: 12px 16px 0 0;
+	}
+
+	&__status--active {
+		border-right: 1px solid $green;
+		color: $green;
+	}
+
+	&__status--inactive {
+		border-right: 1px solid $red;
+		color: $red;
+	}
+
+	&__data {
+		color: $text-light;
+		display: grid;
+		grid-template-columns: max-content max-content;
+		padding: 16px 16px 16px 64px;
+	}
+
+	&__data-column:first-of-type {
+		border-right: 1px solid rgba($white, 0.5);
+		margin-right: 18px;
+		padding-right: 28px;
+		text-align: right;
+	}
+
+	&__data-text {
+		margin: 0 0 18px;
+	}
+
+	&__data-text:last-of-type {
+		margin: 0;
+	}
+}

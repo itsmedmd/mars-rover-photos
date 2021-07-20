@@ -4,7 +4,7 @@ import { Navigation } from "components";
 
 export const Layout = ({ children }) => {
   return (
-    <div className={styles.layout}>
+    <div className={styles["layout"]}>
       <Head>
         <meta name="title" content="Front-end developer Deimantas Butėnas" />
         <meta
@@ -47,11 +47,11 @@ export const Layout = ({ children }) => {
           content="https://www.deimantasb.com/meta-image.png"
         />
       </Head>
-      <header className={styles.header}>
+      <header className={styles["header"]}>
         <Navigation />
       </header>
-      <main className={styles.main}>{children}</main>
-      <footer className={styles.footer}></footer>
+      <main className={styles["main"]}>{children}</main>
+      <footer className={styles["footer"]}></footer>
     </div>
   );
 };

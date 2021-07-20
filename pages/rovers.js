@@ -43,13 +43,37 @@ const Rovers = (props) => {
   });
 
   const roversToRender = data.map((rover) => (
-    <div key={`${rover.name}-manifest`}>
-      <h2>{rover.name}</h2>
-      <p>Status: {rover.status}</p>
-      <p>Launch date: {rover.launch_date}</p>
-      <p>Landing date: {rover.landing_date}</p>
-      <p>Total photos: {rover.total_photos}</p>
-      <p>Most recent photo taken at {rover.max_date}</p>
+    <div key={`${rover.name}-manifest`} className={styles["rover"]}>
+      <h2 className={styles["rover__name"]}>
+        {rover.name}
+        <p
+          className={`
+            ${styles["rover__status"]}
+            ${
+              rover.status === "active"
+                ? styles["rover__status--active"]
+                : styles["rover__status--inactive"]
+            }
+          `}
+        >
+          {rover.status}
+        </p>
+      </h2>
+      <div className={styles["rover__data"]}>
+        <div className={styles["rover__data-column"]}>
+          <p className={styles["rover__data-text"]}>Launch date:</p>
+          <p className={styles["rover__data-text"]}>Landing date:</p>
+          <p className={styles["rover__data-text"]}>Total photos:</p>
+          <p className={styles["rover__data-text"]}>Most recent photo:</p>
+        </div>
+
+        <div className={styles["rover__data-column"]}>
+          <p className={styles["rover__data-text"]}>{rover.launch_date}</p>
+          <p className={styles["rover__data-text"]}>{rover.landing_date}</p>
+          <p className={styles["rover__data-text"]}>{rover.total_photos}</p>
+          <p className={styles["rover__data-text"]}>{rover.max_date}</p>
+        </div>
+      </div>
     </div>
   ));
 
@@ -58,10 +82,27 @@ const Rovers = (props) => {
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
       </Head>
-      <h1>Rovers!</h1>
-      <div>{roversToRender}</div>
+      <div className={styles["content"]}>{roversToRender}</div>
     </Layout>
   );
 };
 
 export default Rovers;
+
+/*
+        <p>
+          <span className={styles["rover__data-text"]}>Launch date: </span>
+          {rover.launch_date}
+        </p>
+        <p>
+          <span className={styles["rover__data-text"]}>Landing date: </span>
+          {rover.landing_date}
+        </p>
+        <p>
+          <span className={styles["rover__data-text"]}>Total photos: </span>
+          {rover.total_photos}
+        </p>
+        <p>
+          <span className={styles["rover__data-text"]}>Most recent photo: </span>
+          {rover.max_date}
+        </p> */
