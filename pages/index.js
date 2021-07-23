@@ -93,39 +93,45 @@ const Home = (props) => {
         const itemClass = "." + imageStyles["image-container"];
         const grid = document.querySelector(containerClass);
 
-        const myMasonry = new Masonry(grid, {
-          itemSelector: itemClass,
-          percentPosition: true,
-        });
-
+        // initialise Masonry and InfiniteScroll after initial images load
         imagesLoaded(grid, () => {
-          // layout Masonry after initial images load
-          console.log("relaying masonry on initial load.");
-          myMasonry.layout();
-        });
+          console.log("initialising masonry and inf scroll");
+          const myMasonry = new Masonry(grid, {
+            itemSelector: itemClass,
+            percentPosition: true,
+          });
 
-        InfiniteScroll.imagesLoaded = imagesLoaded;
+          // make ImagesLoaded available for InfiniteScroll
+          // (needed for "outlayer" option)
+          InfiniteScroll.imagesLoaded = imagesLoaded;
 
-        const infScroll = new InfiniteScroll(grid, {
-          path: function () {
-            return `/page-${(this.loadCount + 1) * photosPerPage}`;
-          },
-          outlayer: myMasonry,
-          append: itemClass,
-          status: "." + styles["page-load-status"],
-          history: false,
-          scrollThreshold: 100,
-          onInit: function () {
-            this.on("append", () => {
-              // layout Masonry after appending new images
-              console.log("relaying masonry on append.");
-              myMasonry.layout();
+          // initialise InfiniteScroll on the grid
+          const infScroll = new InfiniteScroll(grid, {
+            path: function () {
+              return `/page-${(this.loadCount + 1) * photosPerPage}`;
+            },
+            outlayer: myMasonry,
+            append: itemClass,
+            status: "." + styles["page-load-status"],
+            history: false,
+            scrollThreshold: 100,
+          });
+
+          // relay the masonry every time a new image is loaded and skip
+          // relaying when "progress" is fired on already rendered images
+          infScroll.on("append", (response, path, items) => {
+            const pageNumber = path.split("page-")[1];
+            let progressCounter = 0;
+
+            imagesLoaded(grid).on("progress", () => {
+              if (progressCounter++ >= pageNumber) {
+                myMasonry.layout();
+              }
             });
-          },
+          });
         });
       }
     };
-
     initMasonry();
   }, [photosPerPage]);
 
