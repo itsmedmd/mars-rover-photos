@@ -8,7 +8,7 @@ import imageStyles from "components/roverImageGallery/rover-image-gallery.module
 export const getStaticProps = async () => {
   const fs = require("fs");
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
-  const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
+  const rovers = ["perseverance", "curiosity"];
   let data = []; // latest photos from all rovers
   let newestDate; // date of the most recent photo calculated from all rovers
 
