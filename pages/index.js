@@ -15,7 +15,10 @@ export const getStaticProps = async () => {
   const writeToFile = (fileName, dataToWrite) => {
     // delete file before write because keeping the file causes
     // the content to be appended instead of overwritten
-    fs.unlinkSync(fileName);
+    if (fs.existsSync(fileName)) {
+      fs.unlinkSync(fileName);
+    }
+
     fs.writeFile(
       fileName,
       JSON.stringify(dataToWrite),
@@ -44,29 +47,18 @@ export const getStaticProps = async () => {
         newestDate = newDate;
       }
     }
-
-    // logging NASA API remaining requests count
-    // (each request has 1 hour delay until it can be used again)
-    for (let pair of res.headers.entries()) {
-      if (pair[0] === "x-ratelimit-remaining") {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-    }
   }
 
   if (!data) {
     return { notFound: true };
   }
-
-  // format the date to have format of "YYYY-MM-DD"
-  newestDate = newestDate.toISOString().split("T")[0];
+  console.log("photo count:", data.length);
+  console.log("page count:", data.length / photosPerPage);
 
   writeToFile("./data/images-data.json", data);
-  writeToFile("./data/pages-count.json", {
-    pageCount: data.length / photosPerPage,
-  });
 
-  console.log("page count:", data.length / photosPerPage);
+  // format the date to have a format of "YYYY-MM-DD"
+  newestDate = newestDate.toISOString().split("T")[0];
 
   // create image data set for the first (index) page
   data = data.slice(0, photosPerPage);
