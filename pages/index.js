@@ -30,17 +30,16 @@ export const getStaticProps = async () => {
   };
 
   for (let rover of rovers) {
-    //`https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
     // fetch rover photos and add it to the array
     const res = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?api_key=${process.env.NASA_API_KEY}&sol=1000`
+      `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
     );
     const newData = await res.json();
-    data = data.concat(newData.photos);
+    data = data.concat(newData.latest_photos);
 
     // find if there is a more recent photo from the new set of data
-    if (newData?.photos[0]?.earth_date) {
-      const newDate = new Date(newData.photos[0].earth_date);
+    if (newData?.latest_photos[0]?.earth_date) {
+      const newDate = new Date(newData.latest_photos[0].earth_date);
       if (!newestDate || newDate.getTime() > newestDate.getTime()) {
         newestDate = newDate;
       }

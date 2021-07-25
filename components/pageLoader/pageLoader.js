@@ -7,7 +7,7 @@ export const PageLoader = ({ isActive }) => {
   useEffect(() => {
     let timeout;
     if (!isActive) {
-      timeout = setTimeout(() => setIsFinished(true), 2000);
+      timeout = setTimeout(() => setIsFinished(true), 1500);
     }
 
     return () => {
