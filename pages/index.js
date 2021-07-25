@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Head from "next/head";
 import imagesLoaded from "imagesloaded";
-import { Layout, RoverImageGallery } from "components";
+import { Layout, RoverImageGallery, PageLoader } from "components";
 import styles from "styles/home.module.scss";
 import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
 
@@ -80,6 +80,7 @@ export const getStaticProps = async () => {
 
 const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const initMasonry = async () => {
@@ -95,7 +96,7 @@ const Home = (props) => {
 
         // initialise Masonry and InfiniteScroll after initial images load
         imagesLoaded(grid, () => {
-          console.log("initialising masonry and inf scroll");
+          setIsLoading(false);
           const myMasonry = new Masonry(grid, {
             itemSelector: itemClass,
             percentPosition: true,
@@ -114,7 +115,7 @@ const Home = (props) => {
             append: itemClass,
             status: "." + styles["page-load-status"],
             history: false,
-            scrollThreshold: 100,
+            scrollThreshold: 800,
           });
 
           // relay the masonry every time a new image is loaded and skip
@@ -140,6 +141,8 @@ const Home = (props) => {
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos</title>
       </Head>
+
+      <PageLoader isActive={isLoading} />
 
       <h1>Displaying photos of the most recent Sol (day on Mars).</h1>
       <h2>Most recent image received at {newestDate}.</h2>

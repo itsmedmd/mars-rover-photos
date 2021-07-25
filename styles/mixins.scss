@@ -3,3 +3,10 @@
 		@content;
 	}
 }
+
+@mixin spinner($time, $color, $size) {
+	animation: spinning-loader $time linear infinite;
+	border: 3.5px solid rgba($color, 0.7);
+	height: $size;
+	width: $size;
+}
