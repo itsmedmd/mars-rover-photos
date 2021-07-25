@@ -46,6 +46,7 @@ export const Layout = ({ children }) => {
           property="twitter:image"
           content="https://www.deimantasb.com/meta-image.png"
         />
+        <link rel="icon" href="favicon.png" type="image/x-icon" />
       </Head>
       <header className={styles["header"]}>
         <Navigation />
