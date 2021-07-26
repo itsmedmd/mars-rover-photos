@@ -30,7 +30,7 @@ export const getStaticProps = async () => {
 
   return {
     props: { data },
-    revalidate: 86400,
+    revalidate: 10800,
   };
 };
 
@@ -88,21 +88,3 @@ const Rovers = (props) => {
 };
 
 export default Rovers;
-
-/*
-        <p>
-          <span className={styles["rover__data-text"]}>Launch date: </span>
-          {rover.launch_date}
-        </p>
-        <p>
-          <span className={styles["rover__data-text"]}>Landing date: </span>
-          {rover.landing_date}
-        </p>
-        <p>
-          <span className={styles["rover__data-text"]}>Total photos: </span>
-          {rover.total_photos}
-        </p>
-        <p>
-          <span className={styles["rover__data-text"]}>Most recent photo: </span>
-          {rover.max_date}
-        </p> */

@@ -65,7 +65,7 @@ export const getStaticProps = async () => {
 
   return {
     props: { data, newestDate, photosPerPage },
-    revalidate: 3600,
+    revalidate: 10800,
   };
 };
 
