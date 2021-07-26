@@ -1,7 +1,9 @@
+import { useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import Image from "next/image";
+import imagesLoaded from "imagesloaded";
 import styles from "styles/rovers.module.scss";
-import { Layout } from "components";
+import { Layout, PageLoader } from "components";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
@@ -14,14 +16,6 @@ export const getStaticProps = async () => {
     );
     const newData = await res.json();
     data = data.concat(newData.photo_manifest);
-
-    // logging NASA API remaining requests count
-    // (each request has 1 hour delay until it can be used again)
-    for (let pair of res.headers.entries()) {
-      if (pair[0] === "x-ratelimit-remaining") {
-        console.log(pair[0] + ": " + pair[1]);
-      }
-    }
   }
 
   if (!data) {
@@ -36,53 +30,84 @@ export const getStaticProps = async () => {
 
 const Rovers = (props) => {
   const { data } = props;
+  const [isLoading, setIsLoading] = useState(true);
+  const backgroundRef = useRef(null);
 
   // sort array descending by newest photo date
   data.sort((a, b) => {
     return new Date(b.max_date) - new Date(a.max_date);
   });
 
-  const roversToRender = data.map((rover) => (
-    <div key={`${rover.name}-manifest`} className={styles["rover"]}>
-      <h2 className={styles["rover__name"]}>
-        {rover.name}
-        <p
-          className={`
-            ${styles["rover__status"]}
-            ${
-              rover.status === "active"
-                ? styles["rover__status--active"]
-                : styles["rover__status--inactive"]
-            }
-          `}
-        >
-          {rover.status}
-        </p>
-      </h2>
-      <div className={styles["rover__data"]}>
-        <div className={styles["rover__data-column"]}>
-          <p className={styles["rover__data-text"]}>Launch date:</p>
-          <p className={styles["rover__data-text"]}>Landing date:</p>
-          <p className={styles["rover__data-text"]}>Total photos:</p>
-          <p className={styles["rover__data-text"]}>Most recent photo:</p>
-        </div>
-
-        <div className={styles["rover__data-column"]}>
-          <p className={styles["rover__data-text"]}>{rover.launch_date}</p>
-          <p className={styles["rover__data-text"]}>{rover.landing_date}</p>
-          <p className={styles["rover__data-text"]}>{rover.total_photos}</p>
-          <p className={styles["rover__data-text"]}>{rover.max_date}</p>
-        </div>
-      </div>
-    </div>
-  ));
+  useEffect(() => {
+    if (backgroundRef?.current) {
+      imagesLoaded(backgroundRef.current, () => {
+        console.log(backgroundRef.current);
+        setIsLoading(false);
+      });
+    }
+  }, [backgroundRef]);
 
   return (
     <Layout>
       <Head>
         <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
       </Head>
-      <div className={styles["content"]}>{roversToRender}</div>
+
+      <PageLoader isActive={isLoading} />
+
+      <div ref={backgroundRef} className={styles["background"]}>
+        <Image
+          alt=""
+          src="/background.jpg"
+          placeholder="blue"
+          blurDataURL="/background.jpg"
+          layout="fill"
+          objectFit="cover"
+          quality={40}
+        />
+      </div>
+      <div className={styles["content"]}>
+        {data.map((rover) => (
+          <div key={`${rover.name}-manifest`} className={styles["rover"]}>
+            <h2 className={styles["rover__name"]}>
+              {rover.name}
+              <p
+                className={`
+                    ${styles["rover__status"]}
+                    ${
+                      rover.status === "active"
+                        ? styles["rover__status--active"]
+                        : styles["rover__status--inactive"]
+                    }
+                  `}
+              >
+                {rover.status}
+              </p>
+            </h2>
+            <div className={styles["rover__data"]}>
+              <div className={styles["rover__data-column"]}>
+                <p className={styles["rover__data-text"]}>Launch date:</p>
+                <p className={styles["rover__data-text"]}>Landing date:</p>
+                <p className={styles["rover__data-text"]}>Total photos:</p>
+                <p className={styles["rover__data-text"]}>Most recent photo:</p>
+              </div>
+
+              <div className={styles["rover__data-column"]}>
+                <p className={styles["rover__data-text"]}>
+                  {rover.launch_date}
+                </p>
+                <p className={styles["rover__data-text"]}>
+                  {rover.landing_date}
+                </p>
+                <p className={styles["rover__data-text"]}>
+                  {rover.total_photos}
+                </p>
+                <p className={styles["rover__data-text"]}>{rover.max_date}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </Layout>
   );
 };

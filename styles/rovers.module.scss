@@ -1,5 +1,14 @@
 @import "styles";
 
+.background {
+	height: 100vh;
+	left: 0;
+	position: fixed;
+	top: 0;
+	width: 100vw;
+	z-index: $z-index-hidden;
+}
+
 .content {
 	display: grid;
 	gap: 16px;
@@ -19,10 +28,10 @@
 }
 
 .rover {
-	border: 1px solid $text-dark;
+	border: 1px solid $text-light;
 	border-left: 0;
 	border-top: 0;
-	color: $text-dark;
+	color: $text-light;
 	font-size: $font-22;
 	padding: 32px 24px 84px 36px;
 
@@ -85,7 +94,7 @@
 	}
 
 	&__data {
-		color: $black;
+		color: $white;
 		display: grid;
 		grid-template-columns: max-content max-content;
 		padding: 16px 16px 16px 64px;
