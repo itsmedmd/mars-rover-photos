@@ -61,7 +61,7 @@ export const getStaticProps = async () => {
   newestDate = newestDate.toISOString().split("T")[0];
 
   // create image data set for the first (index) page
-  data = data.slice(0, photosPerPage);
+  data = data.slice(0, photosPerPage * 2);
 
   return {
     props: { data, newestDate, photosPerPage },
@@ -81,7 +81,7 @@ const Home = (props) => {
         const { default: Masonry } = await import("masonry-layout");
         const { default: InfiniteScroll } = await import("infinite-scroll");
 
-        const containerClass = "." + styles.gallery;
+        const containerClass = "." + styles["gallery"];
         const itemClass = "." + imageStyles["image-container"];
         const grid = document.querySelector(containerClass);
 
@@ -100,7 +100,9 @@ const Home = (props) => {
           // initialise InfiniteScroll on the grid
           const infScroll = new InfiniteScroll(grid, {
             path: function () {
-              return `/page-${(this.loadCount + 1) * photosPerPage}`;
+              return `/page-${
+                (this.loadCount + 1) * photosPerPage + photosPerPage
+              }`;
             },
             outlayer: myMasonry,
             append: itemClass,
