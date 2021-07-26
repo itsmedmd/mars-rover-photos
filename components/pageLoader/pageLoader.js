@@ -7,7 +7,7 @@ export const PageLoader = ({ isActive }) => {
   useEffect(() => {
     let timeout;
     if (!isActive) {
-      timeout = setTimeout(() => setIsFinished(true), 1500);
+      timeout = setTimeout(() => setIsFinished(true), 1300);
     }
 
     return () => {
@@ -27,6 +27,7 @@ export const PageLoader = ({ isActive }) => {
       <div className={styles["loader__spinner"]}></div>
       <div className={styles["loader__spinner"]}></div>
       <div className={styles["loader__spinner"]}></div>
+      <div className={styles["loader__center"]}></div>
     </div>
   );
 };

@@ -9,14 +9,20 @@
 	left: 0;
 	position: fixed;
 	top: 0;
-	transition: opacity 1.5s;
+	transition: opacity 1.3s;
 	width: 100%;
 	z-index: $z-index-overlay;
 
-
-	&__spinner {
+	&__spinner,
+	&__center {
 		border-radius: 50%;
 		position: absolute;
+	}
+
+	&__center {
+		background-color: rgba($spinner-sun-color, 0.7);
+		height: 20px;
+		width: 20px;
 	}
 
 	&__spinner:nth-of-type(1) {
