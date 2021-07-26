@@ -106,6 +106,7 @@ const Home = (props) => {
             append: itemClass,
             status: "." + styles["page-load-status"],
             history: false,
+            prefill: true,
           });
 
           // relay the masonry every time a new image is loaded and skip
