@@ -13,23 +13,12 @@ export const getStaticProps = async () => {
   let newestDate; // date of the most recent photo calculated from all rovers
 
   const writeToFile = (fileName, dataToWrite) => {
-    // delete file before write because keeping the file causes
-    // the content to be appended instead of overwritten
-    if (fs.existsSync(fileName)) {
-      fs.unlinkSync(fileName);
-    }
-
-    fs.writeFile(
-      fileName,
-      JSON.stringify(dataToWrite),
-      { flag: "a+" },
-      (err) => {
-        if (err) {
-          console.error(`error writing to file ${fileName}`, err);
-          return;
-        }
+    fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
+      if (err) {
+        console.error(`error writing to file ${fileName}`, err);
+        return;
       }
-    );
+    });
   };
 
   for (let rover of rovers) {
@@ -52,16 +41,16 @@ export const getStaticProps = async () => {
   if (!data) {
     return { notFound: true };
   }
-  console.log("photo count:", data.length);
-  console.log("page count:", data.length / photosPerPage);
 
+  // no need for hundreds of photos
+  data = data.slice(0, 120);
   writeToFile("./data/images-data.json", data);
+
+  // create image data set for the first (index) page
+  data = data.slice(0, photosPerPage);
 
   // format the date to have a format of "YYYY-MM-DD"
   newestDate = newestDate.toISOString().split("T")[0];
-
-  // create image data set for the first (index) page
-  data = data.slice(0, photosPerPage * 2);
 
   return {
     props: { data, newestDate, photosPerPage },
@@ -100,9 +89,7 @@ const Home = (props) => {
           // initialise InfiniteScroll on the grid
           const infScroll = new InfiniteScroll(grid, {
             path: function () {
-              return `/page-${
-                (this.loadCount + 1) * photosPerPage + photosPerPage
-              }`;
+              return `/page-${(this.loadCount + 1) * photosPerPage}`;
             },
             outlayer: myMasonry,
             append: itemClass,
@@ -136,10 +123,9 @@ const Home = (props) => {
       </Head>
 
       <PageLoader isActive={isLoading} />
-
-      <h1>Displaying photos of the most recent Sol (day on Mars).</h1>
-      <h2>Most recent image received at {newestDate}.</h2>
-
+      <p className={styles["newest-image-date"]}>
+        Most recent image received at {newestDate}.
+      </p>
       <RoverImageGallery photosArray={data} />
 
       <div className={styles["page-load-status"]}>
