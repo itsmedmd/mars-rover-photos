@@ -52,7 +52,6 @@ export const Layout = ({ children }) => {
         <Navigation />
       </header>
       <main className={styles["main"]}>{children}</main>
-      <footer className={styles["footer"]}></footer>
     </div>
   );
 };

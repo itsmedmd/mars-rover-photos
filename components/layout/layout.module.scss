@@ -7,7 +7,16 @@
 }
 
 .header {
-	//height: 50px;
+	align-items: center;
+	background-color: $header-background-color;
+	border-bottom: 1px solid $text-light;
+	display: flex;
+	height: 80px;
+	justify-content: flex-start;
+	padding: 0 8px 0 32px;
+	position: fixed;
+	width: 100%;
+	z-index: $z-index-overlay;
 }
 
 .main {
@@ -16,8 +25,5 @@
 	flex-direction: column;
 	flex-grow: 1;
 	justify-content: center;
-}
-
-.footer {
-	//height: 50px;
+	margin-top: 80px;
 }

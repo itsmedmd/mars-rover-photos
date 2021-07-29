@@ -1,3 +1,22 @@
+@import "styles";
+
 .navigation {
-	display: none;
+	padding: 0 16px;
+
+	&__item {
+		color: $text-light;
+		font-size: $font-28;
+		font-weight: 500;
+		letter-spacing: 0.5px;
+		margin-right: 64px;
+		text-transform: uppercase;
+	}
+
+	&__item:hover {
+		color: $text-light-active;
+	}
+
+	&__item:active {
+		color: $text-light-hover;
+	}
 }

@@ -5,10 +5,10 @@ export const Navigation = () => {
   return (
     <nav className={styles["navigation"]}>
       <Link href="/">
-        <a>Photos</a>
+        <a className={styles["navigation__item"]}>Photos</a>
       </Link>
       <Link href="/rovers">
-        <a>Rovers</a>
+        <a className={styles["navigation__item"]}>Rovers</a>
       </Link>
     </nav>
   );
