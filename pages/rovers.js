@@ -7,16 +7,22 @@ import { Layout, PageLoader } from "components";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
-  let data = []; // latest photos from all rovers
 
-  for (let rover of rovers) {
-    // fetch rover manifest data and add it to the array
-    const res = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/manifests/${rover}?api_key=${process.env.NASA_API_KEY}`
-    );
-    const newData = await res.json();
-    data = data.concat(newData.photo_manifest);
-  }
+  console.time("rovers manifest fetch");
+  const promises = rovers.map(
+    (rover) =>
+      new Promise((resolve, reject) => {
+        fetch(
+          `https://api.nasa.gov/mars-photos/api/v1/manifests/${rover}?api_key=${process.env.NASA_API_KEY}`
+        )
+          .then((res) => res.json())
+          .then((data) => resolve(data));
+      })
+  );
+
+  const responses = await Promise.all(promises);
+  console.timeEnd("rovers manifest fetch");
+  const data = responses.map((val) => val.photo_manifest);
 
   if (!data) {
     return { notFound: true };
@@ -41,7 +47,6 @@ const Rovers = (props) => {
   useEffect(() => {
     if (backgroundRef?.current) {
       imagesLoaded(backgroundRef.current, () => {
-        console.log(backgroundRef.current);
         setIsLoading(false);
       });
     }
