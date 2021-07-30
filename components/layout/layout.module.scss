@@ -11,7 +11,7 @@
 	background-color: $header-background-color;
 	border-bottom: 1px solid $text-light;
 	display: flex;
-	height: 80px;
+	height: $header-height;
 	justify-content: flex-start;
 	padding: 0 8px 0 32px;
 	position: fixed;
@@ -25,5 +25,5 @@
 	flex-direction: column;
 	flex-grow: 1;
 	justify-content: center;
-	margin-top: 80px;
+	margin-top: $header-height;
 }
