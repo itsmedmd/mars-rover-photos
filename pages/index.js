@@ -63,27 +63,27 @@ const Home = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initMasonry = async () => {
-      if (typeof window !== "undefined") {
-        // importing modules here because they
-        // require window object for initialisation
-        const { default: Masonry } = await import("masonry-layout");
-        const { default: InfiniteScroll } = await import("infinite-scroll");
+    if (typeof window !== "undefined") {
+      const masonryPromise = import("masonry-layout");
+      const scrollPromise = import("infinite-scroll");
+      const containerClass = "." + styles["gallery"];
+      const itemClass = "." + imageStyles["image-container"];
+      const grid = document.querySelector(containerClass);
 
-        const containerClass = "." + styles["gallery"];
-        const itemClass = "." + imageStyles["image-container"];
-        const grid = document.querySelector(containerClass);
-
-        // initialise Masonry and InfiniteScroll after initial images load
-        imagesLoaded(grid, () => {
+      // initialise Masonry and InfiniteScroll after index page images load
+      imagesLoaded(grid, () => {
+        Promise.all([masonryPromise, scrollPromise]).then((values) => {
           setIsLoading(false);
+          const { default: Masonry } = values[0];
+          const { default: InfiniteScroll } = values[1];
+
+          // initialise Masonry on the grid
           const myMasonry = new Masonry(grid, {
             itemSelector: itemClass,
             percentPosition: true,
           });
 
-          // make ImagesLoaded available for InfiniteScroll
-          // (needed for "outlayer" option)
+          // add ImagesLoaded to InfiniteScroll (needed for "outlayer" option)
           InfiniteScroll.imagesLoaded = imagesLoaded;
 
           // initialise InfiniteScroll on the grid
@@ -96,6 +96,7 @@ const Home = (props) => {
             status: "." + styles["page-load-status"],
             history: false,
             prefill: true,
+            scrollThreshold: 800,
           });
 
           // relay the masonry every time a new image is loaded and skip
@@ -111,9 +112,8 @@ const Home = (props) => {
             });
           });
         });
-      }
-    };
-    initMasonry();
+      });
+    }
   }, [photosPerPage]);
 
   return (
