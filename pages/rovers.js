@@ -16,13 +16,12 @@ export const getStaticProps = async () => {
           `https://api.nasa.gov/mars-photos/api/v1/manifests/${rover}?api_key=${process.env.NASA_API_KEY}`
         )
           .then((res) => res.json())
-          .then((data) => resolve(data));
+          .then((data) => resolve(data.photo_manifest));
       })
   );
 
-  const responses = await Promise.all(promises);
+  const data = await Promise.all(promises);
   console.timeEnd("rovers manifest fetch");
-  const data = responses.map((val) => val.photo_manifest);
 
   if (!data) {
     return { notFound: true };

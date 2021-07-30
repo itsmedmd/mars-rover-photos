@@ -9,8 +9,7 @@ export const getStaticProps = async () => {
   const fs = require("fs");
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
-  let data = []; // latest photos from all rovers
-  let newestDate; // date of the most recent photo calculated from all rovers
+  let newestDate;
 
   const writeToFile = (fileName, dataToWrite) => {
     fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
@@ -21,29 +20,36 @@ export const getStaticProps = async () => {
     });
   };
 
-  for (let rover of rovers) {
-    // fetch rover photos and add it to the array
-    const res = await fetch(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
-    );
-    const newData = await res.json();
-    data = data.concat(newData.latest_photos);
+  console.time("photos fetch");
+  const promises = rovers.map(
+    (rover) =>
+      new Promise((resolve, reject) => {
+        fetch(
+          `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            if (data?.latest_photos[0]?.earth_date) {
+              const newDate = new Date(data.latest_photos[0].earth_date);
+              if (!newestDate || newDate.getTime() > newestDate.getTime()) {
+                newestDate = newDate;
+              }
+            }
+            resolve(data);
+          });
+      })
+  );
 
-    // find if there is a more recent photo from the new set of data
-    if (newData?.latest_photos[0]?.earth_date) {
-      const newDate = new Date(newData.latest_photos[0].earth_date);
-      if (!newestDate || newDate.getTime() > newestDate.getTime()) {
-        newestDate = newDate;
-      }
-    }
-  }
+  const responses = await Promise.all(promises);
+  let data = [];
+  responses.forEach((res) => (data = data.concat(res.latest_photos)));
+  console.timeEnd("photos fetch");
 
   if (!data) {
     return { notFound: true };
   }
 
-  // no need for hundreds of photos
-  data = data.slice(0, 120);
+  data = data.slice(0, 180);
   writeToFile("./data/images-data.json", data);
 
   // create image data set for the first (index) page
@@ -126,6 +132,7 @@ const Home = (props) => {
       <p className={styles["newest-image-date"]}>
         Most recent image received at {newestDate}.
       </p>
+
       <RoverImageGallery photosArray={data} />
 
       <div className={styles["page-load-status"]}>
