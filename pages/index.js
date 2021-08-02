@@ -12,6 +12,9 @@ export const getStaticProps = async () => {
   let newestDate;
 
   const writeToFile = (fileName, dataToWrite) => {
+    fs.mkdir("./data", (error) => {
+      if (error) console.log(error);
+    });
     fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
       if (err) {
         console.error(`error writing to file ${fileName}`, err);
