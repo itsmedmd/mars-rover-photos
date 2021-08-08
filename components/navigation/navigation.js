@@ -19,20 +19,24 @@ export const Navigation = () => {
     <nav className={styles["navigation"]}>
       <Link href="/">
         <a
-          className={`${styles["navigation__item"]} ${
-            isHomeCurrentPage ? styles["navigation__item--current"] : ""
-          }`}
+          className={`
+            ${styles["navigation__item"]}
+            ${isHomeCurrentPage ? styles["navigation__item--current"] : ""}
+          `}
         >
           Photos
         </a>
       </Link>
       <Link href="/rovers">
         <a
-          className={`${styles["navigation__item"]} ${
+          className={`
+          ${styles["navigation__item"]}
+          ${
             isHomeCurrentPage === false
               ? styles["navigation__item--current"]
               : ""
-          }`}
+          }
+        `}
         >
           Rovers
         </a>
