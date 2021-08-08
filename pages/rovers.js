@@ -1,9 +1,6 @@
-import { useEffect, useState, useRef } from "react";
 import Head from "next/head";
-import Image from "next/image";
-import imagesLoaded from "imagesloaded";
 import styles from "styles/rovers.module.scss";
-import { Layout, PageLoader } from "components";
+import { Layout } from "components";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
@@ -35,21 +32,11 @@ export const getStaticProps = async () => {
 
 const Rovers = (props) => {
   const { data } = props;
-  const [isLoading, setIsLoading] = useState(true);
-  const backgroundRef = useRef(null);
 
   // sort array descending by newest photo date
   data.sort((a, b) => {
     return new Date(b.max_date) - new Date(a.max_date);
   });
-
-  useEffect(() => {
-    if (backgroundRef?.current) {
-      imagesLoaded(backgroundRef.current, () => {
-        setIsLoading(false);
-      });
-    }
-  }, [backgroundRef]);
 
   return (
     <Layout>
@@ -57,19 +44,8 @@ const Rovers = (props) => {
         <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
       </Head>
 
-      <PageLoader isActive={isLoading} />
+      <div className={styles["background"]}></div>
 
-      <div ref={backgroundRef} className={styles["background"]}>
-        <Image
-          alt=""
-          src="/background.jpg"
-          placeholder="blue"
-          blurDataURL="/background.jpg"
-          layout="fill"
-          objectFit="cover"
-          quality={40}
-        />
-      </div>
       <div className={styles["content"]}>
         {data.map((rover) => (
           <div key={`${rover.name}-manifest`} className={styles["rover"]}>

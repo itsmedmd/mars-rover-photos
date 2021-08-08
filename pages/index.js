@@ -13,7 +13,7 @@ export const getStaticProps = async () => {
 
   const writeToFile = (fileName, dataToWrite) => {
     fs.mkdir("./data", (error) => {
-      if (error) console.log(error);
+      if (error.code !== "EEXIST") console.log(error);
     });
     fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
       if (err) {
