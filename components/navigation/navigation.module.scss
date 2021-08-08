@@ -10,6 +10,10 @@
 		letter-spacing: 0.5px;
 		margin-right: 64px;
 		text-transform: uppercase;
+
+		@include respond-to(max-width, $break-phone) {
+			font-size: $font-24;
+		}
 	}
 
 	&__item:hover {
