@@ -23,4 +23,8 @@
 	&__item:active {
 		color: $text-light-hover;
 	}
+
+	&__item--current {
+		border-bottom: 1px solid $text-light;
+	}
 }
