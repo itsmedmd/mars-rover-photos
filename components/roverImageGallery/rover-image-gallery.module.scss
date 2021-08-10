@@ -1,22 +1,29 @@
 @import "styles";
 
-.image-container {
-	padding: 2px;
-	width: 100%; // 1 column
+.gallery {
+	display: grid;
+	min-height: 95vh;
+	width: 100%;
 
-	@include respond-to(min-width, $break-laptop) {
-		width: 50%;  // 2 columns
-	}
+	&__image-container {
+		padding: 2px;
+		width: 100%; // 1 column
 	
-	@include respond-to(min-width, $break-desktop) {
-		width: 33.33%;  // 3 columns
+		@include respond-to(min-width, $break-laptop) {
+			width: 50%;  // 2 columns
+		}
+		
+		@include respond-to(min-width, $break-desktop) {
+			width: 33.33%;  // 3 columns
+		}
 	}
 
-	> div {
+	// the following is needed for masonry gallery to work properly
+	&__image-container > div {
 		position: unset !important;
 	}
 
-	.image {
+	&__image {
 		height: unset !important;
 		object-fit: contain;
 		position: relative !important;
