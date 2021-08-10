@@ -48,10 +48,10 @@ export const Layout = ({ children }) => {
         />
         <link rel="icon" href="favicon.png" type="image/x-icon" />
       </Head>
-      <header className={styles["header"]}>
+      <header className={styles["layout__header"]}>
         <Navigation />
       </header>
-      <main className={styles["main"]}>{children}</main>
+      <main className={styles["layout__main"]}>{children}</main>
     </div>
   );
 };

@@ -75,8 +75,8 @@ const Home = (props) => {
     if (typeof window !== "undefined") {
       const masonryPromise = import("masonry-layout");
       const scrollPromise = import("infinite-scroll");
-      const containerClass = "." + styles["gallery"];
-      const itemClass = "." + imageStyles["image-container"];
+      const containerClass = "." + imageStyles["gallery"];
+      const itemClass = "." + imageStyles["gallery__image-container"];
       const grid = document.querySelector(containerClass);
 
       // initialise Masonry and InfiniteScroll after index page images load
@@ -102,7 +102,7 @@ const Home = (props) => {
             },
             outlayer: myMasonry,
             append: itemClass,
-            status: "." + styles["page-load-status"],
+            status: "." + styles["home__page-load-status"],
             history: false,
             prefill: true,
             scrollThreshold: 800,
@@ -132,13 +132,13 @@ const Home = (props) => {
       </Head>
 
       <PageLoader isActive={isLoading} />
-      <p className={styles["newest-image-date"]}>
+      <p className={styles["home__newest-image-date"]}>
         Most recent image received at {newestDate}.
       </p>
 
       <RoverImageGallery photosArray={data} />
 
-      <div className={styles["page-load-status"]}>
+      <div className={styles["home__page-load-status"]}>
         <p className="infinite-scroll-request">Loading...</p>
         <p className="infinite-scroll-last">End of content</p>
         <p className="infinite-scroll-error">No more pages to load</p>

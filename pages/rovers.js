@@ -1,6 +1,6 @@
 import Head from "next/head";
 import styles from "styles/rovers.module.scss";
-import { Layout } from "components";
+import { Layout, RoverManifest } from "components";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
@@ -44,48 +44,19 @@ const Rovers = (props) => {
         <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
       </Head>
 
-      <div className={styles["background"]}></div>
+      <div className={styles["rovers__background"]}></div>
 
-      <div className={styles["content"]}>
+      <div className={styles["rovers__content"]}>
         {data.map((rover) => (
-          <div key={`${rover.name}-manifest`} className={styles["rover"]}>
-            <h2 className={styles["rover__name"]}>
-              {rover.name}
-              <p
-                className={`
-                    ${styles["rover__status"]}
-                    ${
-                      rover.status === "active"
-                        ? styles["rover__status--active"]
-                        : styles["rover__status--inactive"]
-                    }
-                  `}
-              >
-                {rover.status}
-              </p>
-            </h2>
-            <div className={styles["rover__data"]}>
-              <div className={styles["rover__data-column"]}>
-                <p className={styles["rover__data-text"]}>Launch date:</p>
-                <p className={styles["rover__data-text"]}>Landing date:</p>
-                <p className={styles["rover__data-text"]}>Total photos:</p>
-                <p className={styles["rover__data-text"]}>Most recent photo:</p>
-              </div>
-
-              <div className={styles["rover__data-column"]}>
-                <p className={styles["rover__data-text"]}>
-                  {rover.launch_date}
-                </p>
-                <p className={styles["rover__data-text"]}>
-                  {rover.landing_date}
-                </p>
-                <p className={styles["rover__data-text"]}>
-                  {rover.total_photos}
-                </p>
-                <p className={styles["rover__data-text"]}>{rover.max_date}</p>
-              </div>
-            </div>
-          </div>
+          <RoverManifest
+            key={`${rover.name}-manifest`}
+            name={rover.name}
+            status={rover.status}
+            launch_date={rover.launch_date}
+            landing_date={rover.landing_date}
+            total_photos={rover.total_photos}
+            max_date={rover.max_date}
+          />
         ))}
       </div>
     </Layout>

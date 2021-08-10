@@ -1,20 +1,16 @@
 @import "styles";
 
-.newest-image-date {
-	font-size: $font-36;
-	padding: 32px 24px 48px;
-}
+.home {
+	&__newest-image-date {
+		font-size: $font-36;
+		padding: 32px 24px 48px;
+	}
 
-.gallery {
-	display: grid;
-	min-height: 95vh;
-	width: 100%;
-}
-
-.page-load-status {
-	border-top: 1px solid $text-dark;
-	color: $text-dark;
-	display: none; /* hidden by default */
-	margin-top: 24px;
-	text-align: center;
+	&__page-load-status {
+		border-top: 1px solid $text-dark;
+		color: $text-dark;
+		display: none; /* hidden by default */
+		margin-top: 24px;
+		text-align: center;
+	}
 }
