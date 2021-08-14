@@ -139,7 +139,12 @@ const Home = (props) => {
       <RoverImageGallery photosArray={data} />
 
       <div className={styles["home__page-load-status"]}>
-        <p className="infinite-scroll-request">Loading...</p>
+        <p className="infinite-scroll-request">
+          Loading
+          <span className={styles["home__loading-dot"]}>.</span>
+          <span className={styles["home__loading-dot"]}>.</span>
+          <span className={styles["home__loading-dot"]}>.</span>
+        </p>
         <p className="infinite-scroll-last">End of content</p>
         <p className="infinite-scroll-error">No more pages to load</p>
       </div>

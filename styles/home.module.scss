@@ -3,14 +3,26 @@
 .home {
 	&__newest-image-date {
 		font-size: $font-36;
-		padding: 32px 24px 48px;
+		padding: 32px 24px;
 	}
 
 	&__page-load-status {
-		border-top: 1px solid $text-dark;
 		color: $text-dark;
 		display: none; /* hidden by default */
-		margin-top: 24px;
+		font-size: $font-24;
+		margin: 12px 0;
 		text-align: center;
+	}
+
+	&__loading-dot {
+		animation: loading-dot 0.6s infinite linear alternate;
+	}
+
+	&__loading-dot:nth-child(2) {
+		animation-delay: 0.3s;
+	}
+
+	&__loading-dot:nth-child(3) {
+		animation-delay: 0.6s;
 	}
 }
