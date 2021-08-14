@@ -48,7 +48,7 @@ export const getStaticProps = async () => {
   responses.forEach((res) => (data = data.concat(res.latest_photos)));
   console.timeEnd("photos fetch");
 
-  if (!data) {
+  if (data.length === 0) {
     return { notFound: true };
   }
 

@@ -18,7 +18,7 @@ export async function getServerSideProps({ params }) {
   pageNumber = parseInt(pageNumber[1]);
   data = data.slice(pageNumber, pageNumber + photosPerPage);
 
-  if (!data) {
+  if (data.length === 0) {
     return { notFound: true };
   }
 
