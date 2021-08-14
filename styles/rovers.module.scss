@@ -2,7 +2,8 @@
 
 .rovers {
 	&__background {
-		background: $rovers-page-background-color;
+		background: #722f2f;
+		background: linear-gradient(15deg, #000 0%, #8f3b3b 100%);
 		height: 100vh;
 		left: 0;
 		position: fixed;
