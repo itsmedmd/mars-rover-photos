@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import imagesLoaded from "imagesloaded";
 import { Layout, RoverImageGallery, PageLoader } from "components";
-import styles from "styles/home.module.scss";
+import styles from "styles/pages/home.module.scss";
 import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
 
 export const getStaticProps = async () => {

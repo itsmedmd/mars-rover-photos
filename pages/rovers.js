@@ -1,5 +1,5 @@
 import Head from "next/head";
-import styles from "styles/rovers.module.scss";
+import styles from "styles/pages/rovers.module.scss";
 import { Layout, RoverManifest } from "components";
 
 export const getStaticProps = async () => {
