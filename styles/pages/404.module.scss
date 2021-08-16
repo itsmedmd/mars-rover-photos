@@ -1,0 +1,37 @@
+@import "styles";
+
+.not-found {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 100vh;
+
+	&__heading {
+		font-size: $font-36;
+		margin-bottom: 32px;
+	}
+
+	&__link {
+		background-color: $black;
+		border: 2px solid $black;
+		color: $white;
+		font-size: $font-24;
+		font-weight: 500;
+		padding: 12px 16px;
+	}
+
+	&__link:hover {
+		background-color: $white;
+		color: $black;
+	}
+
+	&__link:active {
+		background-color: rgba($black, 0.1);
+	}
+
+	&__link:focus {
+		outline-color: rgba($red, 0.7);
+		outline-offset: 4px;
+	}
+}
