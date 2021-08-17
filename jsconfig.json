@@ -4,7 +4,8 @@
     "paths": {
       "components": ["components"],
       "styles": ["styles"],
-      "scripts": ["scripts"]
+      "scripts": ["scripts"],
+      "myRedux": ["myRedux"],
     }
   }
 }

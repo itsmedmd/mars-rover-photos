@@ -1,4 +1,6 @@
 import { Layout, RoverImageGallery } from "components";
+import { useDispatch } from "react-redux";
+import { activate } from "myRedux/reducers/pageLoadingSlice";
 
 export async function getServerSideProps({ params }) {
   const fs = require("fs");
@@ -28,6 +30,10 @@ export async function getServerSideProps({ params }) {
 }
 
 const Page = ({ data }) => {
+  // dispatching action to enable gallery page loading animation
+  const dispatch = useDispatch();
+  dispatch(activate());
+
   return (
     <Layout>
       <RoverImageGallery photosArray={data} />

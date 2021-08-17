@@ -5,6 +5,9 @@ import { Layout, RoverImageGallery, PageLoader } from "components";
 import styles from "styles/pages/home.module.scss";
 import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
 
+import { useSelector, useDispatch } from "react-redux";
+import { activate, deactivate } from "myRedux/reducers/pageLoadingSlice";
+
 export const getStaticProps = async () => {
   const fs = require("fs");
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
@@ -71,6 +74,9 @@ const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
   const [isLoading, setIsLoading] = useState(true);
 
+  const isPageLoading = useSelector((state) => state.pageLoading.value);
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const masonryPromise = import("masonry-layout");
@@ -111,6 +117,9 @@ const Home = (props) => {
           // relay the masonry every time a new image is loaded and skip
           // relaying when "progress" is fired on already rendered images
           infScroll.on("append", (response, path, items) => {
+            // dispatching action to disable gallery page loading animation
+            dispatch(deactivate());
+
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
 
