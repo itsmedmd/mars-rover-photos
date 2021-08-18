@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import imagesLoaded from "imagesloaded";
 import { Layout, RoverImageGallery, PageLoader } from "components";
@@ -73,12 +73,39 @@ export const getStaticProps = async () => {
 const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
   const [isLoading, setIsLoading] = useState(true);
+  const [isGalleryInitialised, setIsGalleryInitialised] = useState(false);
+  const loaderContainerRef = useRef(null);
+  const loaderTextRef = useRef(null);
+  const endTextRef = useRef(null);
 
-  const isPageLoading = useSelector((state) => state.pageLoading.value);
+  const isPagePrefilling = useSelector((state) => state.pageLoading.value);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    console.log("useEffect");
+    // cia kai pvz 3 kartus prefill activatina, nesikeicia state antra ir trecia karta
+    // del to ir nepasikeicia i block po pirmo karto (nes by default infScroll visada bando laikyt none)
+    // possible fix: when dispatching activate(), send an id of page number so useEffect updates.
+    if (
+      loaderContainerRef?.current &&
+      loaderTextRef?.current &&
+      endTextRef?.current
+    ) {
+      if (isPagePrefilling) {
+        console.log("changing to block, isPagePrefilling:", isPagePrefilling);
+        loaderContainerRef.current.style.display = "block";
+        loaderTextRef.current.style.display = "block";
+        endTextRef.current.style.display = "none";
+      } else {
+        console.log("changing to none, isPagePrefilling:", isPagePrefilling);
+        loaderContainerRef.current.style.display = "none";
+        loaderTextRef.current.style.display = "none";
+        endTextRef.current.style.display = "none";
+      }
+    }
+
+    if (typeof window !== "undefined" && !isGalleryInitialised) {
+      setIsGalleryInitialised(true);
       const masonryPromise = import("masonry-layout");
       const scrollPromise = import("infinite-scroll");
       const containerClass = "." + imageStyles["gallery"];
@@ -114,11 +141,24 @@ const Home = (props) => {
             scrollThreshold: 800,
           });
 
+          infScroll.on("request", () => {
+            if (infScroll.isPrefilling) {
+              // dispatching action to enable gallery page loading animation
+              // if gallery is prefilling with images
+              console.log("started prefill, activating");
+              dispatch(activate());
+            }
+          });
+
           // relay the masonry every time a new image is loaded and skip
           // relaying when "progress" is fired on already rendered images
           infScroll.on("append", (response, path, items) => {
-            // dispatching action to disable gallery page loading animation
-            dispatch(deactivate());
+            if (!infScroll.isPrefilling) {
+              // dispatching action to disable gallery page loading animation
+              // if gallery is no longer prefilling with images
+              console.log("stopped prefill, deactivating");
+              dispatch(deactivate());
+            }
 
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
@@ -132,7 +172,13 @@ const Home = (props) => {
         });
       });
     }
-  }, [photosPerPage]);
+  }, [
+    photosPerPage,
+    loaderContainerRef,
+    loaderTextRef,
+    endTextRef,
+    isPagePrefilling,
+  ]);
 
   return (
     <Layout>
@@ -147,15 +193,22 @@ const Home = (props) => {
 
       <RoverImageGallery photosArray={data} />
 
-      <div className={styles["home__page-load-status"]}>
-        <p className="infinite-scroll-request">
+      <div
+        ref={loaderContainerRef}
+        className={styles["home__page-load-status"]}
+      >
+        <p ref={loaderTextRef} className="infinite-scroll-request">
           Loading
           <span className={styles["home__loading-dot"]}>.</span>
           <span className={styles["home__loading-dot"]}>.</span>
           <span className={styles["home__loading-dot"]}>.</span>
         </p>
-        <p className="infinite-scroll-last">End of content</p>
-        <p className="infinite-scroll-error">No more pages to load</p>
+        <p
+          ref={endTextRef}
+          className="infinite-scroll-last infinite-scroll-error"
+        >
+          End of content
+        </p>
       </div>
     </Layout>
   );
