@@ -3,17 +3,17 @@ import { createSlice } from "@reduxjs/toolkit";
 export const pageLoadingSlice = createSlice({
   name: "page-loading",
   initialState: {
-    value: false,
+    value: true,
   },
   reducers: {
-    activate: (state) => {
-      console.log("activating!");
-      state.value = true;
-    },
-    deactivate: (state) => {
-      console.log("DEactivating!");
-      state.value = false;
-    },
+    activate: (state) => ({
+      ...state,
+      value: true,
+    }),
+    deactivate: (state) => ({
+      ...state,
+      value: false,
+    }),
   },
 });
 

@@ -5,7 +5,7 @@
       "components": ["components"],
       "styles": ["styles"],
       "scripts": ["scripts"],
-      "myRedux": ["myRedux"],
+      "myRedux": ["myRedux"]
     }
   }
 }
