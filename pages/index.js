@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import Head from "next/head";
 import imagesLoaded from "imagesloaded";
 import { Layout, RoverImageGallery, PageLoader } from "components";
+import toggleGalleryLoader from "scripts/toggleGalleryLoader";
+
 import styles from "styles/pages/home.module.scss";
 import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
 
@@ -74,45 +76,49 @@ const Home = (props) => {
   const { data, newestDate, photosPerPage } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [isGalleryInitialised, setIsGalleryInitialised] = useState(false);
+
+  // infinite scroll status (loader) refs need to have their inline style
+  // changed in order to show loader when prefilling the page
   const loaderContainerRef = useRef(null);
   const loaderTextRef = useRef(null);
   const endTextRef = useRef(null);
 
-  const isPagePrefilling = useSelector((state) => state.pageLoading.value);
+  const pagesPrefillingCount = useSelector((state) => state.pageLoading.value);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("useEffect");
-    // cia kai pvz 3 kartus prefill activatina, nesikeicia state antra ir trecia karta
-    // del to ir nepasikeicia i block po pirmo karto (nes by default infScroll visada bando laikyt none)
-    // possible fix: when dispatching activate(), send an id of page number so useEffect updates.
+    // turn gallery loader on when prefilling the page
     if (
       loaderContainerRef?.current &&
       loaderTextRef?.current &&
       endTextRef?.current
     ) {
-      if (isPagePrefilling) {
-        console.log("changing to block, isPagePrefilling:", isPagePrefilling);
-        loaderContainerRef.current.style.display = "block";
-        loaderTextRef.current.style.display = "block";
-        endTextRef.current.style.display = "none";
+      if (pagesPrefillingCount >= 1) {
+        toggleGalleryLoader(
+          "on",
+          loaderContainerRef.current,
+          loaderTextRef.current,
+          endTextRef.current
+        );
       } else {
-        console.log("changing to none, isPagePrefilling:", isPagePrefilling);
-        loaderContainerRef.current.style.display = "none";
-        loaderTextRef.current.style.display = "none";
-        endTextRef.current.style.display = "none";
+        toggleGalleryLoader(
+          "off",
+          loaderContainerRef.current,
+          loaderTextRef.current,
+          endTextRef.current
+        );
       }
     }
 
     if (typeof window !== "undefined" && !isGalleryInitialised) {
-      setIsGalleryInitialised(true);
+      setIsGalleryInitialised(true); // init masonry and infiniteScroll once
       const masonryPromise = import("masonry-layout");
       const scrollPromise = import("infinite-scroll");
       const containerClass = "." + imageStyles["gallery"];
       const itemClass = "." + imageStyles["gallery__image-container"];
       const grid = document.querySelector(containerClass);
 
-      // initialise Masonry and InfiniteScroll after index page images load
+      // initialise Masonry and InfiniteScroll after initial page images load
       imagesLoaded(grid, () => {
         Promise.all([masonryPromise, scrollPromise]).then((values) => {
           setIsLoading(false);
@@ -143,9 +149,7 @@ const Home = (props) => {
 
           infScroll.on("request", () => {
             if (infScroll.isPrefilling) {
-              // dispatching action to enable gallery page loading animation
-              // if gallery is prefilling with images
-              console.log("started prefill, activating");
+              // enable gallery loading animation if gallery is prefilling
               dispatch(activate());
             }
           });
@@ -154,9 +158,7 @@ const Home = (props) => {
           // relaying when "progress" is fired on already rendered images
           infScroll.on("append", (response, path, items) => {
             if (!infScroll.isPrefilling) {
-              // dispatching action to disable gallery page loading animation
-              // if gallery is no longer prefilling with images
-              console.log("stopped prefill, deactivating");
+              // disable gallery loading animation if gallery is no longer prefilling
               dispatch(deactivate());
             }
 
@@ -177,7 +179,7 @@ const Home = (props) => {
     loaderContainerRef,
     loaderTextRef,
     endTextRef,
-    isPagePrefilling,
+    pagesPrefillingCount,
   ]);
 
   return (
