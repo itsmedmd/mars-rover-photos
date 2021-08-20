@@ -5,7 +5,6 @@ import { Layout, RoverManifest } from "components";
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
 
-  console.time("rovers manifest fetch");
   const promises = rovers.map(
     (rover) =>
       new Promise((resolve, reject) => {
@@ -18,7 +17,6 @@ export const getStaticProps = async () => {
   );
 
   const data = await Promise.all(promises);
-  console.timeEnd("rovers manifest fetch");
 
   if (!data) {
     return { notFound: true };

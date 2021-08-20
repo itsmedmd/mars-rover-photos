@@ -28,7 +28,6 @@ export const getStaticProps = async () => {
     });
   };
 
-  console.time("photos fetch");
   const promises = rovers.map(
     (rover) =>
       new Promise((resolve, reject) => {
@@ -51,7 +50,6 @@ export const getStaticProps = async () => {
   const responses = await Promise.all(promises);
   let data = [];
   responses.forEach((res) => (data = data.concat(res.latest_photos)));
-  console.timeEnd("photos fetch");
 
   if (data.length === 0) {
     return { notFound: true };
