@@ -17,10 +17,9 @@ export async function getServerSideProps({ params }) {
   let pageNumber = params.page.split("-");
   pageNumber = parseInt(pageNumber[1]);
   data = data.slice(pageNumber, pageNumber + photosPerPage);
-  console.log("++++++++++++++++DIRNAME PAGE:", __dirname);
 
   if (data.length === 0) {
-    //return { notFound: true };
+    return { notFound: true };
   }
 
   return {
@@ -29,7 +28,6 @@ export async function getServerSideProps({ params }) {
 }
 
 const Page = ({ data }) => {
-  console.log("data:", data);
   return (
     <Layout>
       <RoverImageGallery photosArray={data} />

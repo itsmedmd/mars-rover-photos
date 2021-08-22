@@ -15,14 +15,11 @@ export const getStaticProps = async () => {
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
   let newestDate;
-  console.log("++++++++++++++++DIRNAME INDEX:", __dirname);
-  console.log(`++++++++++++++++data file will be:, ${__dirname}/FILENAME`);
 
   const writeToFile = (fileName, dataToWrite) => {
     fs.mkdir("./data", (error) => {
       if (error && error.code !== "EEXIST") console.log(error);
     });
-    console.log("writing to file:", fileName);
     fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
       if (err) {
         console.error(`error writing to file ${fileName}`, err);
