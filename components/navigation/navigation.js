@@ -15,7 +15,7 @@ export const Navigation = () => {
     } else {
       setIsHomeCurrentPage(null);
     }
-  }, []);
+  }, [router.pathname]);
 
   return (
     <nav className={styles["navigation"]}>

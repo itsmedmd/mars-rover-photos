@@ -178,6 +178,8 @@ const Home = (props) => {
     loaderTextRef,
     endTextRef,
     pagesPrefillingCount,
+    dispatch,
+    isGalleryInitialised,
   ]);
 
   return (
