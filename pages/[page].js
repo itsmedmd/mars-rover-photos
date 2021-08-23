@@ -7,11 +7,6 @@ export async function getServerSideProps({ params }) {
   let data = []; // latest photos from all rovers
 
   try {
-    //const testName = "/tmp/testImages.json";
-    //console.log("--------------------READING TMP FROM PAGE:");
-    //const tempData = fs.readFileSync(testName);
-    //let tempDataJson = JSON.parse(tempData);
-    //console.log("data from TMP:", tempDataJson);
     console.log("tryna to read directory!!!!!!!!!!!!!!");
     const dir = "/tmp/";
 
@@ -28,6 +23,12 @@ export async function getServerSideProps({ params }) {
       });
     });
     console.log("finished reading directory!!!!!!!!!!!!!!");
+
+    const testName = "/tmp/testImages.json";
+    console.log("--------------------READING TMP FROM PAGE:");
+    const tempData = fs.readFileSync(testName);
+    let tempDataJson = JSON.parse(tempData);
+    console.log("data from TMP:", tempDataJson);
 
     //const rawData = fs.readFileSync(fileName);
     //data = JSON.parse(rawData);
