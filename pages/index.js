@@ -28,16 +28,20 @@ export const getStaticProps = async () => {
     // });
     const testName = "/tmp/testImages.json";
     console.log("--------------------WRITING TO TMP FROM INDEX:");
-    fs.writeFile(
-      testName,
-      JSON.stringify({ testas: "labas as krabas 123" }),
-      (err) => {
-        if (err) {
-          console.error(`error writing to file ${testName}`, err);
-          return;
-        }
+    fs.writeFile(testName, "labas as krabas 123", (err) => {
+      if (err) {
+        console.error(`error writing to file ${testName}`, err);
+        return;
       }
-    );
+    });
+
+    console.log("--------------------WRITING FROM INDEX (SHOULD GIVE ERROR):");
+    fs.writeFile("./somedir/dwqdq.json", "error test123", (err) => {
+      if (err) {
+        console.error(`error writing to file ./somedir/dwqdq.json`, err);
+        return;
+      }
+    });
   };
 
   const promises = rovers.map(
