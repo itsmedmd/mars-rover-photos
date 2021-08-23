@@ -27,11 +27,13 @@ export async function getServerSideProps({ params }) {
         console.log("FILE::: ", file);
       });
     });
+    console.log("finished reading directory!!!!!!!!!!!!!!");
 
-    const rawData = fs.readFileSync(fileName);
-    data = JSON.parse(rawData);
+    //const rawData = fs.readFileSync(fileName);
+    //data = JSON.parse(rawData);
   } catch (err) {
-    console.error(`error reading from file ${fileName}`, err);
+    //console.error(`error reading from file ${fileName}`, err);
+    console.error("ERROR in [page]:: ", err);
   }
 
   // taking only 'photosPerPage' number of photos starting from 'pageNumber'
