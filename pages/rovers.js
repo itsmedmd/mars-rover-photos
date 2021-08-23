@@ -28,9 +28,7 @@ export const getStaticProps = async () => {
   };
 };
 
-const Rovers = (props) => {
-  const { data } = props;
-
+const Rovers = ({ data }) => {
   // sort array descending by newest photo date
   data.sort((a, b) => {
     return new Date(b.max_date) - new Date(a.max_date);

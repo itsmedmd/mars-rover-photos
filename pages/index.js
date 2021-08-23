@@ -9,24 +9,25 @@ import imageStyles from "components/roverImageGallery/rover-image-gallery.module
 
 import { useSelector, useDispatch } from "react-redux";
 import { activate, deactivate } from "myRedux/reducers/pageLoadingSlice";
+import { setImages } from "myRedux/reducers/imageDataSlice";
 
 export const getStaticProps = async () => {
-  const fs = require("fs");
+  //const fs = require("fs");
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
   let newestDate;
 
-  const writeToFile = (fileName, dataToWrite) => {
-    fs.mkdir("./data", (error) => {
-      if (error && error.code !== "EEXIST") console.log(error);
-    });
-    fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
-      if (err) {
-        console.error(`error writing to file ${fileName}`, err);
-        return;
-      }
-    });
-  };
+  // const writeToFile = (fileName, dataToWrite) => {
+  //   fs.mkdir("./data", (error) => {
+  //     if (error && error.code !== "EEXIST") console.log(error);
+  //   });
+  //   fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
+  //     if (err) {
+  //       console.error(`error writing to file ${fileName}`, err);
+  //       return;
+  //     }
+  //   });
+  // };
 
   const promises = rovers.map(
     (rover) =>
@@ -56,10 +57,10 @@ export const getStaticProps = async () => {
   }
 
   data = data.slice(0, 180);
-  writeToFile("./data/images-data.json", data);
+  //writeToFile("./data/images-data.json", data);
 
   // create image data set for the first (index) page
-  data = data.slice(0, photosPerPage);
+  //data = data.slice(0, photosPerPage);
 
   // format the date to have a format of "YYYY-MM-DD"
   newestDate = newestDate.toISOString().split("T")[0];
@@ -70,8 +71,7 @@ export const getStaticProps = async () => {
   };
 };
 
-const Home = (props) => {
-  const { data, newestDate, photosPerPage } = props;
+const Home = ({ data, newestDate, photosPerPage }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGalleryInitialised, setIsGalleryInitialised] = useState(false);
 
@@ -82,9 +82,18 @@ const Home = (props) => {
   const endTextRef = useRef(null);
 
   const pagesPrefillingCount = useSelector((state) => state.pageLoading.value);
+  const currentImages = useSelector((state) => state.imageData.images);
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // adding images to the redux store
+    if (currentImages?.length === 0) {
+      console.log("adding images");
+      dispatch(setImages(data));
+    } else {
+      console.log("images updated:", currentImages);
+    }
+
     // turn gallery loader on when prefilling the page
     if (
       loaderContainerRef?.current &&
@@ -180,6 +189,8 @@ const Home = (props) => {
     pagesPrefillingCount,
     dispatch,
     isGalleryInitialised,
+    currentImages,
+    data,
   ]);
 
   return (
@@ -193,7 +204,7 @@ const Home = (props) => {
         Most recent image received at {newestDate}.
       </p>
 
-      <RoverImageGallery photosArray={data} />
+      <RoverImageGallery photosArray={data.slice(0, photosPerPage)} />
 
       <div
         ref={loaderContainerRef}

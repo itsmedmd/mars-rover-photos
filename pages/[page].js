@@ -1,38 +1,36 @@
 import { Layout, RoverImageGallery } from "components";
+import { useSelector } from "react-redux";
 
 export async function getServerSideProps({ params }) {
-  const fs = require("fs");
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
-  const fileName = "./data/images-data.json";
-  let data = []; // latest photos from all rovers
 
-  try {
-    const rawData = fs.readFileSync(fileName);
-    data = JSON.parse(rawData);
-  } catch (err) {
-    console.error(`error reading from file ${fileName}`, err);
-  }
+  // try {
+  //   const rawData = fs.readFileSync(fileName);
+  //   data = JSON.parse(rawData);
+  // } catch (err) {
+  //   console.error(`error reading from file ${fileName}`, err);
+  // }
 
   // taking only 'photosPerPage' number of photos starting from 'pageNumber'
   let pageNumber = params.page.split("-");
   pageNumber = parseInt(pageNumber[1]);
-  data = data.slice(pageNumber, pageNumber + photosPerPage);
+  // data = data.slice(pageNumber, pageNumber + photosPerPage);
 
-  if (data.length === 0) {
-    return { notFound: true };
-  }
+  // if (data.length === 0) {
+  //   return { notFound: true };
+  // }
 
   return {
-    props: { data },
+    props: { photosPerPage, pageNumber },
   };
 }
 
-const Page = ({ data }) => {
-  return (
-    <Layout>
-      <RoverImageGallery photosArray={data} />
-    </Layout>
-  );
-};
+const Page = ({ photosPerPage, pageNumber }) => {
+  const images = useSelector((state) => state.imageData.images);
+  //const data = images.slice(pageNumber, pageNumber + photosPerPage);
+  console.log("[page], redux images:", images);
+  //console.log("[page], images:", data);
+  return <Layout></Layout>;
+}; //<RoverImageGallery photosArray={data} />
 
 export default Page;
