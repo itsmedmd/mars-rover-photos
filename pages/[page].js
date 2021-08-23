@@ -7,6 +7,18 @@ export async function getServerSideProps({ params }) {
   let data = []; // latest photos from all rovers
 
   try {
+    const testName = "/tmp/testImages.json";
+    console.log("--------------------WRITING TO TMP FROM PAGE:");
+    fs.writeFile(
+      testName,
+      JSON.stringify({ testas: "labas as krabas" }),
+      (err) => {
+        if (err) {
+          console.error(`error writing to file ${testName}`, err);
+          return;
+        }
+      }
+    );
     const rawData = fs.readFileSync(fileName);
     data = JSON.parse(rawData);
   } catch (err) {

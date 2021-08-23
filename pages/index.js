@@ -26,14 +26,6 @@ export const getStaticProps = async () => {
         return;
       }
     });
-    const testName = "/tmp/testImages.json";
-    console.log("--------------------WRITING TO TMP:");
-    fs.writeFile(testName, JSON.stringify(dataToWrite), (err) => {
-      if (err) {
-        console.error(`error writing to file ${fileName}`, err);
-        return;
-      }
-    });
   };
 
   const promises = rovers.map(
