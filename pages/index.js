@@ -26,6 +26,18 @@ export const getStaticProps = async () => {
         return;
       }
     });
+    const testName = "/tmp/testImages.json";
+    console.log("--------------------WRITING TO TMP FROM INDEX:");
+    fs.writeFile(
+      testName,
+      JSON.stringify({ testas: "labas as krabas 123" }),
+      (err) => {
+        if (err) {
+          console.error(`error writing to file ${testName}`, err);
+          return;
+        }
+      }
+    );
   };
 
   const promises = rovers.map(
@@ -66,7 +78,8 @@ export const getStaticProps = async () => {
 
   return {
     props: { data, newestDate, photosPerPage },
-    revalidate: 10800,
+    revalidate: 10,
+    //revalidate: 10800,
   };
 };
 
