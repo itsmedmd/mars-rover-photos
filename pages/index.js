@@ -17,28 +17,12 @@ export const getStaticProps = async () => {
   let newestDate;
 
   const writeToFile = (fileName, dataToWrite) => {
-    // fs.mkdir("./data", (error) => {
-    //   if (error && error.code !== "EEXIST") console.log(error);
-    // });
-    // fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
-    //   if (err) {
-    //     console.error(`error writing to file ${fileName}`, err);
-    //     return;
-    //   }
-    // });
-    const testName = "/tmp/testImages.json";
-    console.log("--------------------WRITING TO TMP FROM INDEX:");
-    fs.writeFile(testName, "labas as krabas 123", (err) => {
-      if (err) {
-        console.error(`error writing to file ${testName}`, err);
-        return;
-      }
+    fs.mkdir("./data", (error) => {
+      if (error && error.code !== "EEXIST") console.log(error);
     });
-
-    console.log("--------------------WRITING FROM INDEX (SHOULD GIVE ERROR):");
-    fs.writeFile("./somedir/dwqdq.json", "error test123", (err) => {
+    fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
       if (err) {
-        console.error(`error writing to file ./somedir/dwqdq.json`, err);
+        console.error(`error writing to file ${fileName}`, err);
         return;
       }
     });
@@ -82,8 +66,7 @@ export const getStaticProps = async () => {
 
   return {
     props: { data, newestDate, photosPerPage },
-    revalidate: 10,
-    //revalidate: 10800,
+    revalidate: 10800,
   };
 };
 

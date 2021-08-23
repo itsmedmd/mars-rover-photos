@@ -7,33 +7,10 @@ export async function getServerSideProps({ params }) {
   let data = []; // latest photos from all rovers
 
   try {
-    // console.log("tryna to read directory!!!!!!!!!!!!!!");
-    // const dir = "/tmp/";
-
-    // // list all files in the directory
-    // fs.readdir(dir, (err, files) => {
-    //   if (err) {
-    //     throw err;
-    //   }
-
-    //   // files object contains all files names
-    //   // log them on console
-    //   files.forEach((file) => {
-    //     console.log("FILE::: ", file);
-    //   });
-    // });
-    // console.log("finished reading directory!!!!!!!!!!!!!!");
-
-    const testName = "/tmp/testImages.json";
-    console.log("--------------------READING TMP FROM PAGE:");
-    const tempData = fs.readFileSync(testName);
-    console.log("data from TMP:", tempData);
-
-    //const rawData = fs.readFileSync(fileName);
-    //data = JSON.parse(rawData);
+    const rawData = fs.readFileSync(fileName);
+    data = JSON.parse(rawData);
   } catch (err) {
-    //console.error(`error reading from file ${fileName}`, err);
-    console.error("ERROR in [page]:: ", err);
+    console.error(`error reading from file ${fileName}`, err);
   }
 
   // taking only 'photosPerPage' number of photos starting from 'pageNumber'
