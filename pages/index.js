@@ -9,7 +9,6 @@ import imageStyles from "components/roverImageGallery/rover-image-gallery.module
 
 import { useSelector, useDispatch } from "react-redux";
 import { activate, deactivate } from "myRedux/reducers/pageLoadingSlice";
-import { setImages } from "myRedux/reducers/imageDataSlice";
 
 export const getStaticProps = async () => {
   //const fs = require("fs");
@@ -86,14 +85,6 @@ const Home = ({ data, newestDate, photosPerPage }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // adding images to the redux store
-    if (currentImages?.length === 0) {
-      console.log("adding images");
-      dispatch(setImages(data));
-    } else {
-      console.log("images updated:", currentImages);
-    }
-
     // turn gallery loader on when prefilling the page
     if (
       loaderContainerRef?.current &&
@@ -189,8 +180,6 @@ const Home = ({ data, newestDate, photosPerPage }) => {
     pagesPrefillingCount,
     dispatch,
     isGalleryInitialised,
-    currentImages,
-    data,
   ]);
 
   return (

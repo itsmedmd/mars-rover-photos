@@ -1,5 +1,4 @@
 import { Layout, RoverImageGallery } from "components";
-import { useSelector } from "react-redux";
 
 export async function getServerSideProps({ params }) {
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
@@ -26,10 +25,6 @@ export async function getServerSideProps({ params }) {
 }
 
 const Page = ({ photosPerPage, pageNumber }) => {
-  const images = useSelector((state) => state.imageData.images);
-  //const data = images.slice(pageNumber, pageNumber + photosPerPage);
-  console.log("[page], redux images:", images);
-  //console.log("[page], images:", data);
   return <Layout></Layout>;
 }; //<RoverImageGallery photosArray={data} />
 
