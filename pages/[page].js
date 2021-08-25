@@ -11,9 +11,7 @@ export async function getServerSideProps({ params }) {
   const getItemPromise = new Promise((resolve, reject) => {
     const getItemParams = {
       TableName: "images",
-      Key: {
-        img: params.page,
-      },
+      Key: { img: params.page },
     };
 
     dynamoDB.get(getItemParams, function (err, dataReceived) {
@@ -21,8 +19,8 @@ export async function getServerSideProps({ params }) {
         console.log("Error getting page data", err);
         resolve([]);
       } else {
-        if (dataReceived?.Item?.data) {
-          resolve(JSON.parse(dataReceived.Item.data));
+        if (dataReceived?.Item?.imgData) {
+          resolve(JSON.parse(dataReceived.Item.imgData));
         } else {
           resolve([]);
         }

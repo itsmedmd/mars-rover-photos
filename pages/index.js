@@ -56,59 +56,56 @@ export const getStaticProps = async () => {
     return { notFound: true };
   }
 
-  data = data.slice(0, photosPerPage * 25 + 1);
+  // getting a maximum of 26 pages of data (25 + index page)
+  data = data.slice(0, photosPerPage * 26);
 
-  const writeDataToDB = (itemsArray) => {
-    let itemsToWrite = [];
+  const updateImageData = (itemsArray) => {
+    // updating database with new data
     for (let i = photosPerPage; i < itemsArray.length; i += photosPerPage) {
-      itemsToWrite.push({
-        PutRequest: {
-          Item: {
-            img: `page-${i}`,
-            data: JSON.stringify(itemsArray.slice(i, i + photosPerPage)),
-          },
+      const params = {
+        TableName: "images",
+        Key: { img: `page-${i}` },
+        UpdateExpression: "set imgData = :d",
+        ExpressionAttributeValues: {
+          ":d": JSON.stringify(itemsArray.slice(i, i + photosPerPage)),
         },
+      };
+
+      dynamoDB.update(params, function (err, data) {
+        if (err) {
+          console.error(
+            "Unable to update item. Error JSON:",
+            JSON.stringify(err, null, 2)
+          );
+        }
       });
     }
 
-    // change this to updateItem because batchWrite doesn't update the items.
-    const writeParams = { RequestItems: { images: itemsToWrite } };
-    dynamoDB.batchWrite(writeParams, (err, data) => {
-      if (err) {
-        console.log("Error writing to database:", err);
-      } else {
-        console.log("success writing to database:", data);
-      }
-    });
+    // deleting entries from the database if
+    // new data does not exist for those pages
+    const pageCount = itemsArray.length / photosPerPage;
+    for (
+      let i = photosPerPage * pageCount;
+      i < photosPerPage * 26;
+      i += photosPerPage
+    ) {
+      const params = {
+        TableName: "images",
+        Key: { img: `page-${i}` },
+      };
+
+      dynamoDB.delete(params, function (err, data) {
+        if (err) {
+          console.error(
+            "Unable to delete item. Error JSON:",
+            JSON.stringify(err, null, 2)
+          );
+        }
+      });
+    }
   };
 
-  // var params = {
-  //   TableName: images,
-  //   Key: {
-  //     year: year,
-  //     title: title,
-  //   },
-  //   UpdateExpression: "set info.rating = :r, info.plot=:p, info.actors=:a",
-  //   ExpressionAttributeValues: {
-  //     ":r": 5.5,
-  //     ":p": "Everything happens all at once.",
-  //     ":a": ["Larry", "Moe", "Curly"],
-  //   },
-  // };
-
-  // console.log("Updating the item...");
-  // docClient.update(params, function (err, data) {
-  //   if (err) {
-  //     console.error(
-  //       "Unable to update item. Error JSON:",
-  //       JSON.stringify(err, null, 2)
-  //     );
-  //   } else {
-  //     console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
-  //   }
-  // });
-
-  writeDataToDB(data);
+  updateImageData(data);
 
   // create image data set for the first (index) page
   data = data.slice(0, photosPerPage);
