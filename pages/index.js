@@ -11,22 +11,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { activate, deactivate } from "myRedux/reducers/pageLoadingSlice";
 
 export const getStaticProps = async () => {
-  //const fs = require("fs");
+  const AWS = require("aws-sdk");
+  AWS.config.update({
+    region: "eu-central-1",
+    endpoint: "http://localhost:8000",
+  });
+  const dynamoDB = new AWS.DynamoDB.DocumentClient();
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
   let newestDate;
-
-  // const writeToFile = (fileName, dataToWrite) => {
-  //   fs.mkdir("./data", (error) => {
-  //     if (error && error.code !== "EEXIST") console.log(error);
-  //   });
-  //   fs.writeFile(fileName, JSON.stringify(dataToWrite), (err) => {
-  //     if (err) {
-  //       console.error(`error writing to file ${fileName}`, err);
-  //       return;
-  //     }
-  //   });
-  // };
 
   const promises = rovers.map(
     (rover) =>
@@ -43,23 +36,82 @@ export const getStaticProps = async () => {
               }
             }
             resolve(data);
+          })
+          .catch((err) => {
+            console.error(err);
+            resolve([]);
           });
       })
   );
 
   const responses = await Promise.all(promises);
   let data = [];
-  responses.forEach((res) => (data = data.concat(res.latest_photos)));
+  responses.forEach((res) => {
+    if (res?.latest_photos) {
+      data = data.concat(res.latest_photos);
+    }
+  });
 
   if (data.length === 0) {
     return { notFound: true };
   }
 
-  data = data.slice(0, 180);
-  //writeToFile("./data/images-data.json", data);
+  data = data.slice(0, photosPerPage * 25 + 1);
+
+  const writeDataToDB = (itemsArray) => {
+    let itemsToWrite = [];
+    for (let i = photosPerPage; i < itemsArray.length; i += photosPerPage) {
+      itemsToWrite.push({
+        PutRequest: {
+          Item: {
+            img: `page-${i}`,
+            data: JSON.stringify(itemsArray.slice(i, i + photosPerPage)),
+          },
+        },
+      });
+    }
+
+    // change this to updateItem because batchWrite doesn't update the items.
+    const writeParams = { RequestItems: { images: itemsToWrite } };
+    dynamoDB.batchWrite(writeParams, (err, data) => {
+      if (err) {
+        console.log("Error writing to database:", err);
+      } else {
+        console.log("success writing to database:", data);
+      }
+    });
+  };
+
+  // var params = {
+  //   TableName: images,
+  //   Key: {
+  //     year: year,
+  //     title: title,
+  //   },
+  //   UpdateExpression: "set info.rating = :r, info.plot=:p, info.actors=:a",
+  //   ExpressionAttributeValues: {
+  //     ":r": 5.5,
+  //     ":p": "Everything happens all at once.",
+  //     ":a": ["Larry", "Moe", "Curly"],
+  //   },
+  // };
+
+  // console.log("Updating the item...");
+  // docClient.update(params, function (err, data) {
+  //   if (err) {
+  //     console.error(
+  //       "Unable to update item. Error JSON:",
+  //       JSON.stringify(err, null, 2)
+  //     );
+  //   } else {
+  //     console.log("UpdateItem succeeded:", JSON.stringify(data, null, 2));
+  //   }
+  // });
+
+  writeDataToDB(data);
 
   // create image data set for the first (index) page
-  //data = data.slice(0, photosPerPage);
+  data = data.slice(0, photosPerPage);
 
   // format the date to have a format of "YYYY-MM-DD"
   newestDate = newestDate.toISOString().split("T")[0];
@@ -81,7 +133,6 @@ const Home = ({ data, newestDate, photosPerPage }) => {
   const endTextRef = useRef(null);
 
   const pagesPrefillingCount = useSelector((state) => state.pageLoading.value);
-  const currentImages = useSelector((state) => state.imageData.images);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -193,7 +244,7 @@ const Home = ({ data, newestDate, photosPerPage }) => {
         Most recent image received at {newestDate}.
       </p>
 
-      <RoverImageGallery photosArray={data.slice(0, photosPerPage)} />
+      <RoverImageGallery photosArray={data} />
 
       <div
         ref={loaderContainerRef}
