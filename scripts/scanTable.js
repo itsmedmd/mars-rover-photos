@@ -26,11 +26,7 @@ function onScan(err, data) {
     console.log("Items found: ", data.Items.length);
     const allItems = [];
     data.Items.forEach(function (image) {
-      allItems.push(image);
-    });
-    allItems.sort((a, b) => a.img - b.img);
-    allItems.forEach((item) => {
-      console.log(item.img, item.data);
+      console.log(image.img);
     });
 
     // continue scanning if we have more movies, because
