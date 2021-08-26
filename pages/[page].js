@@ -4,7 +4,9 @@ export async function getServerSideProps({ params }) {
   const AWS = require("aws-sdk");
   AWS.config.update({
     region: "eu-central-1",
-    endpoint: "http://localhost:8000",
+    endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
   });
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
