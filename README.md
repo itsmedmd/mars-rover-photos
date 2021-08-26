@@ -1,4 +1,5 @@
 # Mars Rover Photos
+
 A website where you can view the latest images from Mars taken by NASA rovers.
 
 This website uses Server-Side Rendering with NextJS to serve pages for infinitely scrolling masonry gallery,
