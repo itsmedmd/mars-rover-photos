@@ -162,17 +162,16 @@ const Home = ({ data, newestDate, photosPerPage }) => {
       const scrollPromise = import("infinite-scroll");
       const containerClass = "." + imageStyles["gallery"];
       const itemClass = "." + imageStyles["gallery__image-container"];
-      const grid = document.querySelector(containerClass);
 
       // initialise Masonry and InfiniteScroll after initial page images load
-      imagesLoaded(grid, () => {
+      imagesLoaded(containerClass, () => {
         Promise.all([masonryPromise, scrollPromise]).then((values) => {
           setIsLoading(false);
           const { default: Masonry } = values[0];
           const { default: InfiniteScroll } = values[1];
 
-          // initialise Masonry on the grid
-          const myMasonry = new Masonry(grid, {
+          // initialise Masonry on the gallery
+          const myMasonry = new Masonry(containerClass, {
             itemSelector: itemClass,
             percentPosition: true,
           });
@@ -180,8 +179,8 @@ const Home = ({ data, newestDate, photosPerPage }) => {
           // add ImagesLoaded to InfiniteScroll (needed for "outlayer" option)
           InfiniteScroll.imagesLoaded = imagesLoaded;
 
-          // initialise InfiniteScroll on the grid
-          const infScroll = new InfiniteScroll(grid, {
+          // initialise InfiniteScroll on the gallery
+          const infScroll = new InfiniteScroll(containerClass, {
             path: function () {
               return `/page-${(this.loadCount + 1) * photosPerPage}`;
             },
@@ -190,7 +189,7 @@ const Home = ({ data, newestDate, photosPerPage }) => {
             status: "." + styles["home__page-load-status"],
             history: false,
             prefill: true,
-            scrollThreshold: 800,
+            scrollThreshold: 1000,
           });
 
           infScroll.on("request", () => {
@@ -211,7 +210,7 @@ const Home = ({ data, newestDate, photosPerPage }) => {
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
 
-            imagesLoaded(grid).on("progress", () => {
+            imagesLoaded(containerClass).on("progress", () => {
               if (progressCounter++ >= pageNumber) {
                 myMasonry.layout();
               }
