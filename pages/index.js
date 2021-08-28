@@ -135,6 +135,16 @@ const Home = ({ data, newestDate, photosPerPage }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    // loading an image with AJAX that has a srcset attribute on it
+    // breaks how the image is displayed in IOS devices, hence this fix
+    const reloadSrcsetImages = (item) => {
+      const images = item.querySelectorAll("img[srcset]");
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
+        img.outerHTML = img.outerHTML;
+      }
+    };
+
     // turn gallery loader on when prefilling the page
     if (
       loaderContainerRef?.current &&
@@ -204,6 +214,11 @@ const Home = ({ data, newestDate, photosPerPage }) => {
           // relay the masonry every time a new image is loaded and skip
           // relaying when "progress" is fired on already rendered images
           infScroll.on("append", (response, path, items) => {
+            // fix for IOS devices not rendering images set with srcset attribute
+            for (let i = 0; i < items.length; i++) {
+              reloadSrcsetImages(items[i]);
+            }
+
             if (!infScroll.isPrefilling) {
               // disable gallery loading animation if gallery is no longer prefilling
               dispatch(deactivate());
