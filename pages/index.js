@@ -217,9 +217,18 @@ const Home = ({ data, newestDate, photosPerPage }) => {
             }
 
             // fix for IOS devices not rendering images set with srcset attribute
+            const userAgent = navigator.userAgent;
+            const chromeAgent = userAgent.indexOf("Chrome") > -1;
+            let safariAgent = userAgent.indexOf("Safari") > -1;
+
+            // Discard Safari since it also matches Chrome
+            if (chromeAgent && safariAgent) {
+              safariAgent = false;
+            }
+
             if (
-              /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-              !window.MSStream
+              (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) ||
+              safariAgent
             ) {
               for (let i = 0; i < items.length; i++) {
                 reloadImageSrcset(items[i]);
