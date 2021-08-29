@@ -235,13 +235,16 @@ const Home = ({ data, newestDate, photosPerPage }) => {
               }
             }
 
+            for (let i = 0; i < items.length; i++) {
+              reloadImageSrcset(items[i]);
+            }
+
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
 
             imagesLoaded(containerClass).on("progress", (instance, image) => {
               if (progressCounter++ >= pageNumber) {
-                image.outerHTML = image.outerHTML;
-                if (image.isLoaded && image.img.height == 0) {
+                if (image.isLoaded && image.img.height === 0) {
                   let naturalH = image.img.naturalHeight,
                     naturalW = image.img.naturalWidth;
 
