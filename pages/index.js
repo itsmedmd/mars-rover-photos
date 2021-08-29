@@ -231,12 +231,8 @@ const Home = ({ data, newestDate, photosPerPage }) => {
               safariAgent
             ) {
               for (let i = 0; i < items.length; i++) {
-                //reloadImageSrcset(items[i]);
+                reloadImageSrcset(items[i]);
               }
-            }
-
-            for (let i = 0; i < items.length; i++) {
-              reloadImageSrcset(items[i]);
             }
 
             const pageNumber = path.split("page-")[1];
@@ -244,21 +240,6 @@ const Home = ({ data, newestDate, photosPerPage }) => {
 
             imagesLoaded(containerClass).on("progress", (instance, image) => {
               if (progressCounter++ >= pageNumber) {
-                if (image.isLoaded && image.img.height === 0) {
-                  let naturalH = image.img.naturalHeight,
-                    naturalW = image.img.naturalWidth;
-
-                  if (image.img.parentElement.clientWidth < naturalW) {
-                    const ratio = naturalH / naturalW;
-                    naturalW = image.img.parentElement.clientWidth;
-                    naturalH = naturalW * ratio;
-                  }
-
-                  image.img.setAttribute(
-                    "style",
-                    "width: " + naturalW + "px; height: " + naturalH + "px;"
-                  );
-                }
                 myMasonry.layout();
               }
             });
