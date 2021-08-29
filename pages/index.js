@@ -240,6 +240,7 @@ const Home = ({ data, newestDate, photosPerPage }) => {
 
             imagesLoaded(containerClass).on("progress", (instance, image) => {
               if (progressCounter++ >= pageNumber) {
+                image.outerHTML = image.outerHTML;
                 if (image.isLoaded && image.img.height == 0) {
                   let naturalH = image.img.naturalHeight,
                     naturalW = image.img.naturalWidth;
