@@ -226,22 +226,21 @@ const Home = ({ data, newestDate, photosPerPage }) => {
               safariAgent = false;
             }
 
-            if (
+            const isApple =
               (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) ||
-              safariAgent
-            ) {
-              for (let i = 0; i < items.length; i++) {
-                reloadImageSrcset(items[i]);
-              }
+              safariAgent;
+
+            if (isApple) {
+              items.forEach((item) => reloadImageSrcset(item));
             }
 
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
 
-            imagesLoaded(containerClass).on("progress", (instance, image) => {
-              //if (progressCounter++ >= pageNumber) {
-              myMasonry.layout();
-              //}
+            imagesLoaded(containerClass).on("progress", () => {
+              if (progressCounter++ >= pageNumber || isApple) {
+                myMasonry.layout();
+              }
             });
           });
         });
