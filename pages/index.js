@@ -239,9 +239,9 @@ const Home = ({ data, newestDate, photosPerPage }) => {
             let progressCounter = 0;
 
             imagesLoaded(containerClass).on("progress", (instance, image) => {
-              if (progressCounter++ >= pageNumber) {
-                myMasonry.layout();
-              }
+              //if (progressCounter++ >= pageNumber) {
+              myMasonry.layout();
+              //}
             });
           });
         });
