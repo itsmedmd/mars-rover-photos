@@ -169,8 +169,7 @@ const Home = ({ data, newestDate, photosPerPage }) => {
       setIsGalleryInitialised(true); // init masonry and infiniteScroll once
       const masonryPromise = import("masonry-layout");
       const scrollPromise = import("infinite-scroll");
-      const containerClasss = "." + imageStyles["gallery"];
-      const containerClass = document.querySelector(containerClasss);
+      const containerClass = "." + imageStyles["gallery"];
       const itemClass = "." + imageStyles["gallery__image-container"];
 
       // initialise Masonry and InfiniteScroll after initial page images load
@@ -232,28 +231,30 @@ const Home = ({ data, newestDate, photosPerPage }) => {
               safariAgent
             ) {
               for (let i = 0; i < items.length; i++) {
-                reloadImageSrcset(items[i]);
+                //reloadImageSrcset(items[i]);
               }
             }
 
             const pageNumber = path.split("page-")[1];
             let progressCounter = 0;
 
-            //   imgLoad.on( 'progress', function( instance, image ) {
-            //     if(image.isLoaded && image.img.height == 0){
-            //         var naturalH = image.img.naturalHeight,
-            //         naturalW = image.img.naturalWidth;
-            //         if( image.img.parentElement.clientWidth < naturalW ){
-            //             var ratio = naturalH / naturalW;
-            //             naturalW = image.img.parentElement.clientWidth;
-            //             naturalH = naturalW * ratio;
-            //         }
-            //         image.img.setAttribute("style","width: "+naturalW+"px; height: "+naturalH+"px;");
-            //     }
-            // });
-
-            imagesLoaded(containerClass).on("progress", () => {
+            imagesLoaded(containerClass).on("progress", (instance, image) => {
               if (progressCounter++ >= pageNumber) {
+                if (image.isLoaded && image.img.height == 0) {
+                  let naturalH = image.img.naturalHeight,
+                    naturalW = image.img.naturalWidth;
+
+                  if (image.img.parentElement.clientWidth < naturalW) {
+                    const ratio = naturalH / naturalW;
+                    naturalW = image.img.parentElement.clientWidth;
+                    naturalH = naturalW * ratio;
+                  }
+
+                  image.img.setAttribute(
+                    "style",
+                    "width: " + naturalW + "px; height: " + naturalH + "px;"
+                  );
+                }
                 myMasonry.layout();
               }
             });
