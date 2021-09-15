@@ -1,9 +1,12 @@
 @import "styles";
 
 .home {
-	&__newest-image-date {
+	&__page-header {
 		font-size: $font-36;
+		font-weight: 400;
+		margin: 36px 0;
 		padding: 32px 24px;
+		text-align: center;
 	}
 
 	&__page-load-status {

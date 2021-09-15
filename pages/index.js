@@ -21,7 +21,6 @@ export const getStaticProps = async () => {
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
-  let newestDate;
 
   const promises = rovers.map(
     (rover) =>
@@ -30,15 +29,7 @@ export const getStaticProps = async () => {
           `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
         )
           .then((res) => res.json())
-          .then((data) => {
-            if (data?.latest_photos[0]?.earth_date) {
-              const newDate = new Date(data.latest_photos[0].earth_date);
-              if (!newestDate || newDate.getTime() > newestDate.getTime()) {
-                newestDate = newDate;
-              }
-            }
-            resolve(data);
-          })
+          .then((data) => resolve(data))
           .catch((err) => {
             console.error(err);
             resolve([]);
@@ -112,16 +103,13 @@ export const getStaticProps = async () => {
   // create image data set for the first (index) page
   data = data.slice(0, photosPerPage);
 
-  // format the date to have a format of "YYYY-MM-DD"
-  newestDate = newestDate.toISOString().split("T")[0];
-
   return {
-    props: { data, newestDate, photosPerPage },
+    props: { data, photosPerPage },
     revalidate: 10800,
   };
 };
 
-const Home = ({ data, newestDate, photosPerPage }) => {
+const Home = ({ data, photosPerPage }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGalleryInitialised, setIsGalleryInitialised] = useState(false);
 
@@ -263,9 +251,9 @@ const Home = ({ data, newestDate, photosPerPage }) => {
       </Head>
 
       <PageLoader isActive={isLoading} />
-      <p className={styles["home__newest-image-date"]}>
-        Most recent image received at {newestDate}.
-      </p>
+      <h1 className={styles["home__page-header"]}>
+        Explore Mars with the most recent images from NASA&apos;s rovers!
+      </h1>
 
       <RoverImageGallery photosArray={data} />
 
