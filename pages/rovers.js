@@ -51,7 +51,6 @@ const Rovers = ({ data }) => {
             launch_date={rover.launch_date}
             landing_date={rover.landing_date}
             total_photos={rover.total_photos}
-            max_date={rover.max_date}
           />
         ))}
       </div>
