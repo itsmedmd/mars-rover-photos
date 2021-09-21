@@ -22,7 +22,7 @@ export const getStaticProps = async () => {
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
 
-  const promises = rovers.map(
+  const promises_latest = rovers.map(
     (rover) =>
       new Promise((resolve, reject) => {
         fetch(
@@ -37,11 +37,57 @@ export const getStaticProps = async () => {
       })
   );
 
+  const promises = [];
+  const sol_limits = [207, 3242];
+
+  // create promises for all 4 requests (2 to latest_photos and 2 for fallback photos) and run them asynchronously
+  rovers.forEach((rover, id) => {
+    // get photos from the most recent Mars sol where photos are available
+    promises.push(
+      new Promise((resolve, reject) => {
+        fetch(
+          `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
+        )
+          .then((res) => res.json())
+          .then((data) => resolve(data))
+          .catch((err) => {
+            console.error(err);
+            resolve([]);
+          });
+      })
+    );
+
+    // get photos from a random Mars sol in case latest_photos returns very few photos
+    const sol_number = Math.floor(Math.random() * sol_limits[id] + 5);
+    promises.push(
+      new Promise((resolve, reject) => {
+        fetch(
+          `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/photos?api_key=${process.env.NASA_API_KEY}&sol=${sol_number}`
+        )
+          .then((res) => res.json())
+          .then((data) => resolve(data))
+          .catch((err) => {
+            console.error(err);
+            resolve([]);
+          });
+      })
+    );
+  });
+
   const responses = await Promise.all(promises);
+
   let data = [];
+  // add only the latest photos to data array
   responses.forEach((res) => {
     if (res?.latest_photos) {
       data = data.concat(res.latest_photos);
+    }
+  });
+
+  // add fallback photos after the latest photos
+  responses.forEach((res) => {
+    if (res?.photos) {
+      data = data.concat(res.photos);
     }
   });
 
@@ -271,7 +317,7 @@ const Home = ({ data, photosPerPage }) => {
           ref={endTextRef}
           className="infinite-scroll-last infinite-scroll-error"
         >
-          End of content
+          End of content, come back later for more photos!
         </p>
       </div>
     </Layout>
