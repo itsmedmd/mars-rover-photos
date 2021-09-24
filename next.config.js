@@ -1,7 +1,7 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ["mars.nasa.gov", "mars.jpl.nasa.gov"],
+    domains: ["res.cloudinary.com"],
     minimumCacheTTL: 31536000,
   },
 };

@@ -2,6 +2,12 @@ import Image from "next/image";
 import styles from "./rover-image-gallery.module.scss";
 
 export const RoverImageGallery = ({ photosArray }) => {
+  const cloudinaryName = "dskuy1qja";
+
+  const getCloudinarySrc = (src) => {
+    return `https://res.cloudinary.com/${cloudinaryName}/image/fetch/q_auto:eco,f_auto/${src}`;
+  };
+
   return (
     <div className={styles["gallery"]}>
       {photosArray.map((photo) => (
@@ -11,9 +17,9 @@ export const RoverImageGallery = ({ photosArray }) => {
         >
           <Image
             priority
-            quality="30"
             layout="fill"
-            src={photo.img_src}
+            unoptimized={true}
+            src={getCloudinarySrc(photo.img_src)}
             className={styles["gallery__image"]}
             alt={`
                 ${photo.rover.name} Mars rover image taken with 
