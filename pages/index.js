@@ -135,7 +135,7 @@ export const getStaticProps = async () => {
 
   return {
     props: { data, photosPerPage },
-    revalidate: 10800,
+    revalidate: 43200,
   };
 };
 
