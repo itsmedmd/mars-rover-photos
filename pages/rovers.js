@@ -7,7 +7,7 @@ export const getStaticProps = async () => {
 
   const promises = rovers.map(
     (rover) =>
-      new Promise((resolve, reject) => {
+      new Promise((resolve) => {
         fetch(
           `https://api.nasa.gov/mars-photos/api/v1/manifests/${rover}?api_key=${process.env.NASA_API_KEY}`
         )

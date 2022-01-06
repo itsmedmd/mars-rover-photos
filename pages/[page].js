@@ -10,7 +10,7 @@ export async function getServerSideProps({ params }) {
   });
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
-  const getItemPromise = new Promise((resolve, reject) => {
+  const getItemPromise = new Promise((resolve) => {
     const getItemParams = {
       TableName: "images",
       Key: { img: params.page },

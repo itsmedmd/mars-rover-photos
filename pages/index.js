@@ -22,58 +22,54 @@ export const getStaticProps = async () => {
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const rovers = ["perseverance", "curiosity"];
 
-  // create promises for all requests (2 to latest_photos and 1 for fallback photos) and run them asynchronously
-  const promises = [];
-
-  rovers.forEach((rover) =>
-    // get photos from the most recent Mars sol where photos are available
-    promises.push(
-      new Promise((resolve, reject) => {
-        fetch(
-          `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
-        )
-          .then((res) => res.json())
-          .then((data) => resolve(data))
-          .catch((err) => {
-            console.error(err);
-            resolve([]);
-          });
-      })
-    )
-  );
-
-  // get photos as a fallback from a predetermined Mars sol in case latest_photos returns very few photos
-  const perseverance_sol_number = 207;
-  promises.push(
-    new Promise((resolve, reject) => {
-      fetch(
-        `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/photos?api_key=${process.env.NASA_API_KEY}&sol=${perseverance_sol_number}`
-      )
+  const fetchUrl = (url) => {
+    return new Promise((resolve) => {
+      fetch(url)
         .then((res) => res.json())
         .then((data) => resolve(data))
         .catch((err) => {
           console.error(err);
           resolve([]);
         });
-    })
+    });
+  };
+
+  // create promises for all requests (2 to latest_photos and 1 for fallback photos) and run them asynchronously
+  const promises = [];
+
+  // get photos from the most recent Mars sol where photos are available for each rover
+  rovers.forEach((rover) =>
+    promises.push(
+      fetchUrl(
+        `https://api.nasa.gov/mars-photos/api/v1/rovers/${rover}/latest_photos?api_key=${process.env.NASA_API_KEY}`
+      )
+    )
+  );
+
+  // get photos as a fallback from a predetermined Mars sol in case latest_photos returns very few photos
+  const perseverance_sol_number = 295;
+  promises.push(
+    fetchUrl(
+      `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/photos?api_key=${process.env.NASA_API_KEY}&sol=${perseverance_sol_number}`
+    )
   );
 
   const responses = await Promise.all(promises);
 
-  let data = [];
-  // add only the latest photos to data array
+  let dataRovers = [];
+  let dataFallback = [];
+
   responses.forEach((res) => {
     if (res?.latest_photos) {
-      data = data.concat(res.latest_photos);
+      // add the latest photos to data array
+      dataRovers = dataRovers.concat(res.latest_photos);
+    } else if (res?.photos) {
+      // add fallback photos after the latest photos
+      dataFallback = dataFallback.concat(res.photos);
     }
   });
 
-  // add fallback photos after the latest photos
-  responses.forEach((res, id) => {
-    if (res?.photos) {
-      data = data.concat(res.photos);
-    }
-  });
+  let data = dataRovers.concat(dataFallback);
 
   if (data.length === 0) {
     return { notFound: true };
