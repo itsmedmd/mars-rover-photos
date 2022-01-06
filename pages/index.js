@@ -3,6 +3,7 @@ import Head from "next/head";
 import imagesLoaded from "imagesloaded";
 import { Layout, RoverImageGallery, PageLoader } from "components";
 import toggleGalleryLoader from "scripts/toggleGalleryLoader";
+import isDeviceIOS from "scripts/isDeviceIOS";
 
 import styles from "styles/pages/home.module.scss";
 import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
@@ -190,6 +191,7 @@ const Home = ({ data, photosPerPage }) => {
       imagesLoaded(containerClass, () => {
         Promise.all([masonryPromise, scrollPromise]).then((values) => {
           setIsLoading(false);
+          const isIOS = isDeviceIOS();
           const { default: Masonry } = values[0];
           const { default: InfiniteScroll } = values[1];
 
@@ -230,21 +232,8 @@ const Home = ({ data, photosPerPage }) => {
               dispatch(deactivate());
             }
 
-            // fix for IOS devices not rendering images set with srcset attribute
-            const userAgent = navigator.userAgent;
-            const chromeAgent = userAgent.indexOf("Chrome") > -1;
-            let safariAgent = userAgent.indexOf("Safari") > -1;
-
-            // Discard Safari since it also matches Chrome
-            if (chromeAgent && safariAgent) {
-              safariAgent = false;
-            }
-
-            const isApple =
-              (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) ||
-              safariAgent;
-
-            if (isApple) {
+            // *relay every item for IOS devices because they don't render images set with srcset attribute
+            if (isIOS) {
               items.forEach((item) => reloadImageSrcset(item));
             }
 
@@ -252,7 +241,7 @@ const Home = ({ data, photosPerPage }) => {
             let progressCounter = 0;
 
             imagesLoaded(containerClass).on("progress", () => {
-              if (progressCounter++ >= pageNumber || isApple) {
+              if (progressCounter++ >= pageNumber || isIOS) {
                 myMasonry.layout();
               }
             });
