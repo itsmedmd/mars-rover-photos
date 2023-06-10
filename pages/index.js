@@ -1,28 +1,36 @@
-import { useEffect, useState, useRef } from "react";
+// utils
 import Head from "next/head";
+import { useEffect, useState, useRef } from "react";
 import imagesLoaded from "imagesloaded";
-import { Layout, RoverImageGallery, PageLoader } from "components";
-import toggleGalleryLoader from "scripts/toggleGalleryLoader";
-import isDeviceIOS from "scripts/isDeviceIOS";
-
-import styles from "styles/pages/home.module.scss";
-import imageStyles from "components/roverImageGallery/rover-image-gallery.module.scss";
-
 import { useSelector, useDispatch } from "react-redux";
-import { activate, deactivate } from "myRedux/reducers/pageLoadingSlice";
+import { activate, deactivate } from "@/store/reducers/pageLoadingSlice";
+import toggleGalleryLoader from "@/utils/toggleGalleryLoader";
+import isDeviceIOS from "@/utils/isDeviceIOS";
+
+// components and styles
+import Layout from "@/components/Layout";
+import RoverImageGallery from "@/components/RoverImageGallery";
+import PageLoader from "@/components/PageLoader";
+import imageStyles from "@/components/RoverImageGallery/index.module.scss";
+import styles from "@/styles/pages/mars.module.scss";
 
 export const getStaticProps = async () => {
+  // Setup config
   const AWS = require("aws-sdk");
   AWS.config.update({
     region: "eu-central-1",
     endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
+
+  const maxImagesCount = 3000;
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
+  const pageCount = Math.floor(maxImagesCount / photosPerPage);
   const rovers = ["perseverance", "curiosity"];
 
+  // Utility function
   const fetchUrl = (url) => {
     return new Promise((resolve) => {
       fetch(url)
@@ -35,10 +43,10 @@ export const getStaticProps = async () => {
     });
   };
 
-  // create promises for all requests (2 to latest_photos and 1 for fallback photos) and run them asynchronously
+  // Create promises for all requests and run them asynchronously
   const promises = [];
 
-  // get photos from the most recent Mars sol where photos are available for each rover
+  // Get photos from the most recent Mars sol (day) where photos are available for each rover
   rovers.forEach((rover) =>
     promises.push(
       fetchUrl(
@@ -47,11 +55,48 @@ export const getStaticProps = async () => {
     )
   );
 
-  // get photos as a fallback from a predetermined Mars sol in case latest_photos returns very few photos
-  const perseverance_sol_number = 295;
-  promises.push(
-    fetchUrl(
-      `https://api.nasa.gov/mars-photos/api/v1/rovers/perseverance/photos?api_key=${process.env.NASA_API_KEY}&sol=${perseverance_sol_number}`
+  // Get more photos from rovers as a fallback from predetermined
+  // Mars sols in case latest_photos returns very few photos
+  const sols = [
+    {
+      sol: 811,
+      rover: "perseverance"
+    },
+    {
+      sol: 3846,
+      rover: "curiosity"
+    },
+    {
+      sol: 810,
+      rover: "perseverance"
+    },
+    {
+      sol: 3845,
+      rover: "curiosity"
+    },
+    {
+      sol: 806,
+      rover: "perseverance"
+    },
+    {
+      sol: 3844,
+      rover: "curiosity"
+    },
+    {
+      sol: 805,
+      rover: "perseverance"
+    },
+    {
+      sol: 3843,
+      rover: "curiosity"
+    },
+  ];
+
+  sols.forEach((sol) =>
+    promises.push(
+      fetchUrl(
+        `https://api.nasa.gov/mars-photos/api/v1/rovers/${sol.rover}/photos?api_key=${process.env.NASA_API_KEY}&sol=${sol.sol}`
+      )
     )
   );
 
@@ -76,14 +121,15 @@ export const getStaticProps = async () => {
     return { notFound: true };
   }
 
-  // getting a maximum of 26 pages of data (25 + index page)
-  data = data.slice(0, photosPerPage * 26);
+  // Limit the amount of data used
+  data = data.slice(0, photosPerPage * pageCount);
 
   const updateImageData = (itemsArray) => {
     // updating database with new data
+    let lastPage = 0;
     for (let i = photosPerPage; i < itemsArray.length; i += photosPerPage) {
       const params = {
-        TableName: "images",
+        TableName: "rovers",
         Key: { img: `page-${i}` },
         UpdateExpression: "set imgData = :d",
         ExpressionAttributeValues: {
@@ -99,18 +145,15 @@ export const getStaticProps = async () => {
           );
         }
       });
+
+      lastPage += photosPerPage;
     }
 
-    // deleting entries from the database if
-    // new data does not exist for those pages
-    const pageCount = itemsArray.length / photosPerPage;
-    for (
-      let i = photosPerPage * pageCount;
-      i < photosPerPage * 26;
-      i += photosPerPage
-    ) {
+    // Deleting entries from the database if
+    // new data does not exist for those pages.
+    for (let i = lastPage + photosPerPage; i <= photosPerPage * pageCount; i += photosPerPage) {
       const params = {
-        TableName: "images",
+        TableName: "rovers",
         Key: { img: `page-${i}` },
       };
 
@@ -125,18 +168,31 @@ export const getStaticProps = async () => {
     }
   };
 
+  // Save only necessary data
+  data = data.map((item) => ({
+    id: item.id || "",
+    image: item.img_src || "",
+    earthDate: item.earth_date || "",
+    roverName: item.rover?.name || "",
+    cameraName: item.camera?.full_name || "",
+  }));
+
   updateImageData(data);
 
   // create image data set for the first (index) page
   data = data.slice(0, photosPerPage);
 
   return {
-    props: { data, photosPerPage },
-    revalidate: 43200,
+    props: {
+      data,
+      photosPerPage,
+      cloudinaryName: process.env.CLOUDINARY_NAME
+    },
+    revalidate: 3 * 60 * 60, // 3 hours in seconds
   };
 };
 
-const Home = ({ data, photosPerPage }) => {
+const Mars = ({ data, photosPerPage, cloudinaryName }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGalleryInitialised, setIsGalleryInitialised] = useState(false);
 
@@ -151,13 +207,14 @@ const Home = ({ data, photosPerPage }) => {
 
   useEffect(() => {
     // loading an image with AJAX that has a srcset attribute on it
-    // breaks how the image is displayed in IOS devices, hence this fix
+    // breaks how the image is displayed in IOS devices, so we reset
+    // image outerHTML - that makes the image display correctly
     const reloadImageSrcset = (item) => {
       const image = item.querySelectorAll("img[srcset]")[0];
       image.outerHTML = image.outerHTML;
     };
 
-    // turn gallery loader on when prefilling the page
+    // turn gallery loader on when prefilling the page during the first load
     if (
       loaderContainerRef?.current &&
       loaderTextRef?.current &&
@@ -181,11 +238,12 @@ const Home = ({ data, photosPerPage }) => {
     }
 
     if (typeof window !== "undefined" && !isGalleryInitialised) {
-      setIsGalleryInitialised(true); // init masonry and infiniteScroll once
+      setIsGalleryInitialised(true); // init masonry and infiniteScroll only once
+
       const masonryPromise = import("masonry-layout");
       const scrollPromise = import("infinite-scroll");
       const containerClass = "." + imageStyles["gallery"];
-      const itemClass = "." + imageStyles["gallery__image-container"];
+      const itemClass = "." + imageStyles["image-container"];
 
       // initialise Masonry and InfiniteScroll after initial page images load
       imagesLoaded(containerClass, () => {
@@ -211,10 +269,10 @@ const Home = ({ data, photosPerPage }) => {
             },
             outlayer: myMasonry,
             append: itemClass,
-            status: "." + styles["home__page-load-status"],
+            status: "." + styles["page-load-status"],
             history: false,
             prefill: true,
-            scrollThreshold: 1000,
+            scrollThreshold: 3000,
           });
 
           infScroll.on("request", () => {
@@ -232,7 +290,7 @@ const Home = ({ data, photosPerPage }) => {
               dispatch(deactivate());
             }
 
-            // *relay every item for IOS devices because they don't render images set with srcset attribute
+            // relay every item for IOS devices because they don't render images set with srcset attribute
             if (isIOS) {
               items.forEach((item) => reloadImageSrcset(item));
             }
@@ -260,37 +318,41 @@ const Home = ({ data, photosPerPage }) => {
   ]);
 
   return (
-    <Layout>
+    <Layout withBackgroundImg={true}>
       <Head>
-        <title>Deimantas Butėnas - Mars Rover Photos</title>
+        <title>Mars gallery</title>
       </Head>
 
-      <PageLoader isActive={isLoading} />
-      <h1 className={styles["home__page-header"]}>
-        Explore Mars with the most recent images from NASA&apos;s rovers!
+      <PageLoader
+        isActive={isLoading}
+        text="Loading..."
+      />
+
+      <h1 className={styles["page-header"]}>
+        Explore Mars with the most recent images from NASA&apos;s rovers
       </h1>
 
-      <RoverImageGallery photosArray={data} />
+      <RoverImageGallery photosArray={data} cloudinaryName={cloudinaryName} />
 
       <div
         ref={loaderContainerRef}
-        className={styles["home__page-load-status"]}
+        className={styles["page-load-status"]}
       >
         <p ref={loaderTextRef} className="infinite-scroll-request">
           Loading
-          <span className={styles["home__loading-dot"]}>.</span>
-          <span className={styles["home__loading-dot"]}>.</span>
-          <span className={styles["home__loading-dot"]}>.</span>
+          <span className={styles["loading-dot"]}>.</span>
+          <span className={styles["loading-dot"]}>.</span>
+          <span className={styles["loading-dot"]}>.</span>
         </p>
         <p
           ref={endTextRef}
           className="infinite-scroll-last infinite-scroll-error"
         >
-          End of content, come back later for more photos!
+          End of content, come back later for more photos
         </p>
       </div>
     </Layout>
   );
 };
 
-export default Home;
+export default Mars;

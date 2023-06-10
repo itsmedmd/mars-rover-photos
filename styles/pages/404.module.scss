@@ -1,37 +1,56 @@
-@import "styles";
+@import "@/styles";
 
 .not-found {
-	align-items: center;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	min-height: 100vh;
+  background: url("../../static/404-background.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  align-items: center;
+  background-color: black;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-grow: 1;
+  width: 100vw;
 
-	&__heading {
-		font-size: $font-36;
-		margin-bottom: 32px;
-	}
+  .heading {
+    color: white;
+    font-size: 36px;
+    margin-bottom: 32px;
+  }
 
-	&__link {
-		background-color: $black;
-		border: 2px solid $black;
-		color: $white;
-		font-size: $font-24;
-		font-weight: 500;
-		padding: 12px 16px;
-	}
+  .link {
+    background-color: white;
+    border: 2px solid white;
+    color: black;
+    font-size: 26px;
+    font-weight: 500;
+    padding: 12px 16px;
 
-	&__link:hover {
-		background-color: $white;
-		color: $black;
-	}
+    @include non-touch {
+      &:hover {
+        background-color: rgba(white, 0.85);
+      }
 
-	&__link:active {
-		background-color: rgba($black, 0.1);
-	}
+      &:active {
+        background-color: white;
+      }
 
-	&__link:focus {
-		outline-color: rgba($red, 0.7);
-		outline-offset: 4px;
-	}
+      &:focus {
+        outline-color: rgba(0, 163, 163, 0.7);
+        outline-offset: 4px;
+      }
+    }
+  }
+
+  @include respond-to(max-width, 1024px) {
+    .heading {
+      font-size: 26px;
+    }
+
+    .link {
+      font-size: 19px;
+    }
+  }
 }

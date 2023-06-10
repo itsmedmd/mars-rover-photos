@@ -1,32 +1,19 @@
-@import "styles";
+@import "@/styles";
 
-.rovers {
-	&__background {
-		background: $rovers-page-background-color;
-		background: $rovers-page-background-color-gradient;
-		height: 100vh;
-		left: 0;
-		position: fixed;
-		top: 0;
-		width: 100vw;
-		z-index: $z-index-hidden;
-	}
-	
-	&__content {
-		display: grid;
-		gap: 16px;
-		grid-template-columns: 1fr 1fr;
-		justify-content: center;
-		max-width: 1800px;
-		padding: 0 16px;
-		width: 100%;
-	
-		@include respond-to(max-width, $break-tablet) {
-			grid-template-columns: 1fr;
-		}
-	
-		@include respond-to(max-width, $break-phone) {
-			padding: 0;
-		}
-	}
+.content {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  justify-content: center;
+  max-width: 1800px;
+  padding: 0 16px;
+  width: 100%;
+
+  @include respond-to(max-width, 1024px) {
+    grid-template-columns: 1fr;
+  }
+
+  @include respond-to(max-width, 520px) {
+    padding: 0;
+  }
 }

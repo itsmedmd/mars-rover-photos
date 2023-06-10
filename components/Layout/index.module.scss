@@ -1,0 +1,31 @@
+@import "@/styles";
+
+.layout {
+	display: flex;
+	flex-direction: column;
+
+	.main {
+		min-height: 100vh;
+		align-items: center;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		justify-content: center;
+
+		&.hidden-overflow {
+			overflow: hidden;
+		}
+	}
+
+	&.with-background-img {
+		background: url("../../static/background.jpg");
+		background-position: center;
+		background-repeat: repeat-y;
+		background-size: auto;
+		background-color: black;
+
+		.main {
+			background-color: rgb(black, 0.6);
+		}
+	}
+}

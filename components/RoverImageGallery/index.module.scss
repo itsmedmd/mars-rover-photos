@@ -1,0 +1,57 @@
+@import "@/styles";
+
+.gallery {
+	display: grid;
+	min-height: 95vh;
+	width: 100%;
+
+	.image-container {
+		padding: 2px;
+		width: 100%; // 1 column
+	
+		@include respond-to(min-width, 1200px) {
+			width: 50%;  // 2 columns
+		}
+		
+		@include respond-to(min-width, 1920px) {
+			width: 33.33%;  // 3 columns
+		}
+	}
+
+	// the following is needed for masonry gallery to work properly
+	.image-container > span {
+		position: unset !important;
+	}
+
+	.image {
+		height: unset !important;
+		object-fit: contain;
+		position: relative !important;
+		width: 100% !important;
+	}
+
+	.info-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		padding: 16px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		p {
+			margin: 0;
+			color: white;
+			text-shadow: 0 0 20px black, 0 0 10px rgba(black, 0.5), 0 0 5px rgb(black, 0.2);
+		}
+
+		.rover-name {
+			font-size: 16px;
+		}
+
+		.date {
+			font-size: 15px;
+		}
+	}
+}

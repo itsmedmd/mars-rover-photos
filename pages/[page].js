@@ -1,24 +1,27 @@
-import { Layout, RoverImageGallery } from "components";
+import Layout from "@/components/Layout";
+import RoverImageGallery from "@/components/RoverImageGallery";
 
+// Get data from database of Mars images for the requested page and render the page in the server
 export async function getServerSideProps({ params }) {
+  // Setup config
   const AWS = require("aws-sdk");
   AWS.config.update({
     region: "eu-central-1",
     endpoint: "https://dynamodb.eu-central-1.amazonaws.com",
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   });
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
   const getItemPromise = new Promise((resolve) => {
     const getItemParams = {
-      TableName: "images",
+      TableName: "rovers",
       Key: { img: params.page },
     };
 
     dynamoDB.get(getItemParams, function (err, dataReceived) {
       if (err) {
-        console.log("Error getting page data", err);
+        console.error("Error getting page data", err);
         resolve([]);
       } else {
         if (dataReceived?.Item?.imgData) {
@@ -38,14 +41,17 @@ export async function getServerSideProps({ params }) {
   }
 
   return {
-    props: { data },
+    props: {
+      data,
+      cloudinaryName: process.env.CLOUDINARY_NAME
+    },
   };
 }
 
-const Page = ({ data }) => {
+const Page = ({ data, cloudinaryName }) => {
   return (
     <Layout>
-      <RoverImageGallery photosArray={data} />
+      <RoverImageGallery photosArray={data} cloudinaryName={cloudinaryName} />
     </Layout>
   );
 };

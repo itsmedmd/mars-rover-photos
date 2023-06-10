@@ -1,0 +1,45 @@
+@import "@/styles";
+
+.navigation {
+  width: 100%;
+  background-color: rgba(black, 0.9);
+
+  .list {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 20px 10px;
+    border-bottom: 1px solid rgba(white, 0.3);
+
+    .item {
+      font-size: 20px;
+      margin: 0 100px;
+      text-transform: uppercase;
+      color: white;
+
+      .link {
+        &.link-active {
+          border-bottom: 2px solid white;
+        }
+
+        @include non-touch {
+          &:hover {
+            border-bottom: 2px solid white;
+          }
+        }
+      }
+    }
+  }
+
+  @include respond-to(max-width, 600px) {
+    padding: 10px;
+
+    .list {
+      .item {
+        font-size: 16px;
+        margin: 0 16px;
+      }
+    }
+  }
+}

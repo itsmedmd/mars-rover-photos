@@ -1,10 +1,15 @@
+// utils
 import Head from "next/head";
-import styles from "styles/pages/rovers.module.scss";
-import { Layout, RoverManifest } from "components";
+
+// components and styles
+import Layout from "@/components/Layout";
+import RoverManifest from "@/components/RoverManifest";
+import styles from "@/styles/pages/rovers.module.scss";
 
 export const getStaticProps = async () => {
   const rovers = ["perseverance", "curiosity", "opportunity", "spirit"];
 
+  // Get latest data for each rover
   const promises = rovers.map(
     (rover) =>
       new Promise((resolve) => {
@@ -23,8 +28,18 @@ export const getStaticProps = async () => {
   }
 
   return {
-    props: { data },
-    revalidate: 43200,
+    props: {
+      // Use only required data
+      data: data.map((rover) => ({
+        max_date: rover.max_date,
+        launch_date: rover.launch_date,
+        landing_date: rover.landing_date,
+        total_photos: rover.total_photos,
+        name: rover.name,
+        status: rover.status,
+      }))
+    },
+    revalidate: 3 * 60 * 60, // 3 hours in seconds
   };
 };
 
@@ -35,14 +50,12 @@ const Rovers = ({ data }) => {
   });
 
   return (
-    <Layout>
+    <Layout withBackgroundImg={true}>
       <Head>
-        <title>Deimantas Butėnas - Mars Rover Photos - Rovers</title>
+        <title>Mars rovers</title>
       </Head>
 
-      <div className={styles["rovers__background"]}></div>
-
-      <div className={styles["rovers__content"]}>
+      <div className={styles["content"]}>
         {data.map((rover) => (
           <RoverManifest
             key={`${rover.name}-manifest`}
