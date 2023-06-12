@@ -25,7 +25,7 @@ export const getStaticProps = async () => {
   });
   const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
-  const maxImagesCount = 3000;
+  const maxImagesCount = 1200;
   const photosPerPage = parseInt(process.env.PHOTOS_PER_PAGE);
   const pageCount = Math.floor(maxImagesCount / photosPerPage);
   const rovers = ["perseverance", "curiosity"];
