@@ -9,4 +9,4 @@ while rendering image gallery pages.
 
 You can find live version [here](https://mars-rover-photos-itsmedmd.vercel.app).
 
-v2.0.0 code was extracted from another personal project so there are some parts that might seem like unnecessarily split away. It's because those splits make sense in the full project from which this code was extracted, it's just that I didn't go through every single part to cater the code for this separated project.
+For v2.0.0, code was extracted from another personal project so there are some parts that might seem like unnecessarily split away. It's because those splits make sense in the full project from which this code was extracted, it's just that I didn't go through every single part to cater the code for this separated project.
